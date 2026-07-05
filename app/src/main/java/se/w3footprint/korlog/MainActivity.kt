@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             KorLogTheme {
                 Surface {
-                    KorLogNavGraph(isLoggedIn = false)
+                    KorLogNavGraph(isLoggedIn = true)
                 }
             }
         }
