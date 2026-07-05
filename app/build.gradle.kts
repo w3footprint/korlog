@@ -4,8 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.hilt.android)
-    alias(libs.plugins.google.services)
-    alias(libs.plugins.firebase.crashlytics)
+    // alias(libs.plugins.google.services)       // enable after adding google-services.json
+    // alias(libs.plugins.firebase.crashlytics)  // enable after adding google-services.json
 }
 
 android {
@@ -39,13 +39,13 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -87,12 +87,12 @@ dependencies {
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
 
-    // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-    implementation(libs.firebase.firestore)
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.crashlytics)
+    // Firebase — uncomment after adding google-services.json from Firebase Console
+    // implementation(platform(libs.firebase.bom))
+    // implementation(libs.firebase.auth)
+    // implementation(libs.firebase.firestore)
+    // implementation(libs.firebase.analytics)
+    // implementation(libs.firebase.crashlytics)
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
