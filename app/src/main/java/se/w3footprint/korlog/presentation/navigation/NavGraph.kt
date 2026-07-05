@@ -24,6 +24,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import se.w3footprint.korlog.R
+import com.google.firebase.auth.FirebaseAuth
 import se.w3footprint.korlog.presentation.auth.LoginScreen
 import se.w3footprint.korlog.presentation.auth.RegisterScreen
 import se.w3footprint.korlog.presentation.dashboard.DashboardScreen
@@ -155,7 +156,13 @@ fun KorLogNavGraph(isLoggedIn: Boolean) {
             composable(Screen.Settings.route) {
                 SettingsScreen(
                     onProUpgradeClick = { navController.navigate(Screen.ProUpgrade.route) },
-                    onAboutClick = { navController.navigate(Screen.About.route) }
+                    onAboutClick = { navController.navigate(Screen.About.route) },
+                    onSignOut = {
+                        FirebaseAuth.getInstance().signOut()
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
                 )
             }
 
