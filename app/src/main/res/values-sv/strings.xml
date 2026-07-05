@@ -94,6 +94,18 @@
     <string name="pro_upgrade">Uppgradera till PRO</string>
     <string name="pro_price">99 kr · engångsbetalning</string>
     <string name="pro_badge">PRO</string>
+    <string name="pro_one_time_note">Betala en gång, använd för alltid. Ingen prenumeration.</string>
+    <string name="pro_cta">Lås upp PRO — 99 kr</string>
+    <string name="pro_restore">Återställ köp</string>
+
+    <!-- About -->
+    <string name="about_version">Version 1.0.0</string>
+    <string name="about_tagline">Byggd för svenska taxi- och samåkningsförare</string>
+    <string name="about_developer">Utvecklare</string>
+    <string name="about_legal">Organisation</string>
+    <string name="about_legal_value">W3Footprint enskild firma</string>
+    <string name="about_contact">Kontakt</string>
+    <string name="about_legal_note">KörLog följer vägarbetstidslagen (2005:395). Gränserna som visas är informativa — kontrollera alltid officiella källor.</string>
 
     <!-- Auth -->
     <string name="auth_login">Logga in</string>
