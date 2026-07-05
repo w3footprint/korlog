@@ -55,7 +55,14 @@
     <!-- History -->
     <string name="history_title">Historik</string>
     <string name="history_filter_all">Alla</string>
+    <string name="history_search_hint">Sök på plattform eller anteckningar</string>
     <string name="history_empty">Inga pass ännu.\nStarta ett pass för att se din historik här.</string>
+    <string name="session_detail_title">Passdetaljer</string>
+    <string name="session_detail_start">Starttid</string>
+    <string name="session_detail_end">Sluttid</string>
+    <string name="session_detail_hourly_rate">Timlön</string>
+    <string name="session_delete_confirm_title">Radera passet?</string>
+    <string name="session_delete_confirm_body">Det går inte att ångra.</string>
 
     <!-- Statistics -->
     <string name="stats_title">Statistik</string>
