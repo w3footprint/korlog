@@ -122,6 +122,12 @@
     <string name="auth_no_account">Don\'t have an account?</string>
     <string name="auth_have_account">Already have an account?</string>
 
+    <!-- Notifications -->
+    <string name="notification_channel_name">Break reminders</string>
+    <string name="notification_channel_desc">Reminds you to take a break after 6 hours of driving</string>
+    <string name="notification_break_title">Time for a break</string>
+    <string name="notification_break_body">You\'ve been driving for 6 hours. Swedish law requires a break — take at least 30 minutes.</string>
+
     <!-- General -->
     <string name="loading">Loading…</string>
     <string name="error_generic">Something went wrong. Please try again.</string>

@@ -122,6 +122,12 @@
     <string name="auth_no_account">Har du inget konto?</string>
     <string name="auth_have_account">Har du redan ett konto?</string>
 
+    <!-- Notifications -->
+    <string name="notification_channel_name">Pauspåminnelser</string>
+    <string name="notification_channel_desc">Påminner dig om att ta en paus efter 6 timmars körning</string>
+    <string name="notification_break_title">Dags för en paus</string>
+    <string name="notification_break_body">Du har kört i 6 timmar. Vägarbetstidslagen kräver en paus — ta minst 30 minuter.</string>
+
     <!-- General -->
     <string name="loading">Laddar…</string>
     <string name="error_generic">Något gick fel. Försök igen.</string>

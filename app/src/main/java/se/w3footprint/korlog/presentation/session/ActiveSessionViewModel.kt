@@ -12,11 +12,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import se.w3footprint.korlog.domain.model.Platform
 import se.w3footprint.korlog.domain.usecase.session.SaveSessionUseCase
+import se.w3footprint.korlog.worker.BreakReminderScheduler
 import javax.inject.Inject
 
 @HiltViewModel
 class ActiveSessionViewModel @Inject constructor(
-    private val saveSession: SaveSessionUseCase
+    private val saveSession: SaveSessionUseCase,
+    private val breakReminderScheduler: BreakReminderScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ActiveSessionUiState())
@@ -28,11 +30,14 @@ class ActiveSessionViewModel @Inject constructor(
         val now = System.currentTimeMillis()
         _uiState.update { it.copy(isRunning = true, startTime = now, elapsedMillis = 0L) }
         startTicking()
+        breakReminderScheduler.schedule(driveTimeHours = 6L)
     }
 
     fun takeBreak() {
         timerJob?.cancel()
         _uiState.update { it.copy(isOnBreak = true, currentBreakStartMillis = System.currentTimeMillis()) }
+        // Cancel the reminder — driver is already taking a break
+        breakReminderScheduler.cancel()
     }
 
     fun resumeFromBreak() {
@@ -46,6 +51,8 @@ class ActiveSessionViewModel @Inject constructor(
             )
         }
         startTicking()
+        // Re-schedule reminder for 6 more hours from now
+        breakReminderScheduler.schedule(driveTimeHours = 6L)
     }
 
     private fun startTicking() {
@@ -89,6 +96,7 @@ class ActiveSessionViewModel @Inject constructor(
     }
 
     fun confirmStop() {
+        breakReminderScheduler.cancel()
         // If stopping during a break, close the break first
         val now = System.currentTimeMillis()
         _uiState.update { state ->
