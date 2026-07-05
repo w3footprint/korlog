@@ -9,13 +9,23 @@
 
     <!-- Dashboard -->
     <string name="dashboard_title">KörLog</string>
+    <string name="dashboard_greeting">God dag, chaufför</string>
+    <string name="dashboard_subtitle">Här är din översikt</string>
+    <string name="dashboard_this_week">Denna vecka</string>
+    <string name="dashboard_this_month">Denna månad</string>
+    <string name="dashboard_recent_sessions">Senaste pass</string>
     <string name="session_start">Starta pass</string>
     <string name="session_stop">Avsluta pass</string>
+    <string name="session_active_continue">Fortsätt pågående pass</string>
     <string name="this_week">Denna vecka</string>
     <string name="this_month">Denna månad</string>
     <string name="recent_sessions">Senaste pass</string>
     <string name="hours_format">%.1f h</string>
     <string name="earnings_format">%.0f kr</string>
+    <string name="stats_hours">Timmar</string>
+    <string name="stats_earnings">Intäkter</string>
+    <string name="stats_distance">Körsträcka</string>
+    <string name="stats_sessions">Pass</string>
 
     <!-- Compliance -->
     <string name="compliance_title">Licenskydd</string>
@@ -23,6 +33,9 @@
     <string name="compliance_rest">Vila rekommenderas</string>
     <string name="compliance_limit">Veckogränsen nådd</string>
     <string name="compliance_hours_format">%.1f / %.0f h</string>
+    <string name="compliance_weekly_limit">Veckans körgräns</string>
+    <string name="compliance_average_warning">Du överstiger 48h-genomsnittet — vila är rekommenderat</string>
+    <string name="compliance_hard_limit_warning">60h-gränsen nådd — sluta köra nu för att skydda ditt körkort</string>
 
     <!-- Session -->
     <string name="session_platform">Plattform</string>

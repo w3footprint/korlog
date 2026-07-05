@@ -135,7 +135,12 @@ fun KorLogNavGraph(isLoggedIn: Boolean) {
 
             // Main tabs
             composable(Screen.Dashboard.route) {
-                DashboardScreen()
+                DashboardScreen(
+                    onStartSession = { navController.navigate(Screen.ActiveSession.route) },
+                    onSessionClick = { sessionId ->
+                        navController.navigate(Screen.SessionDetail.createRoute(sessionId))
+                    }
+                )
             }
             composable(Screen.History.route) {
                 HistoryScreen(
