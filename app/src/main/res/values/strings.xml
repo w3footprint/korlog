@@ -9,13 +9,23 @@
 
     <!-- Dashboard -->
     <string name="dashboard_title">KörLog</string>
+    <string name="dashboard_greeting">Good day, driver</string>
+    <string name="dashboard_subtitle">Here\'s your overview</string>
+    <string name="dashboard_this_week">This week</string>
+    <string name="dashboard_this_month">This month</string>
+    <string name="dashboard_recent_sessions">Recent sessions</string>
     <string name="session_start">Start driving</string>
     <string name="session_stop">Stop driving</string>
+    <string name="session_active_continue">Continue active session</string>
     <string name="this_week">This week</string>
     <string name="this_month">This month</string>
     <string name="recent_sessions">Recent sessions</string>
     <string name="hours_format">%.1f h</string>
     <string name="earnings_format">%.0f kr</string>
+    <string name="stats_hours">Hours</string>
+    <string name="stats_earnings">Earnings</string>
+    <string name="stats_distance">Distance</string>
+    <string name="stats_sessions">Sessions</string>
 
     <!-- Compliance -->
     <string name="compliance_title">License protection</string>
@@ -23,6 +33,9 @@
     <string name="compliance_rest">Break recommended</string>
     <string name="compliance_limit">Weekly limit reached</string>
     <string name="compliance_hours_format">%.1f / %.0f h</string>
+    <string name="compliance_weekly_limit">Weekly driving limit</string>
+    <string name="compliance_average_warning">You\'re above the 48h average — consider resting</string>
+    <string name="compliance_hard_limit_warning">60h limit reached — stop driving now to protect your licence</string>
 
     <!-- Session -->
     <string name="session_platform">Platform</string>
@@ -30,6 +43,8 @@
     <string name="session_distance">Distance (mil)</string>
     <string name="session_notes">Notes</string>
     <string name="session_driving_time">Driving time</string>
+    <string name="session_stop_confirm_title">End session?</string>
+    <string name="session_stop_confirm_body">This will save your session and return to the dashboard.</string>
     <string name="platform_uber">Uber</string>
     <string name="platform_bolt">Bolt</string>
     <string name="platform_cabonline">Cabonline</string>
