@@ -55,7 +55,14 @@
     <!-- History -->
     <string name="history_title">History</string>
     <string name="history_filter_all">All</string>
+    <string name="history_search_hint">Search by platform or notes</string>
     <string name="history_empty">No sessions yet.\nStart driving to see your history here.</string>
+    <string name="session_detail_title">Session details</string>
+    <string name="session_detail_start">Start time</string>
+    <string name="session_detail_end">End time</string>
+    <string name="session_detail_hourly_rate">Hourly rate</string>
+    <string name="session_delete_confirm_title">Delete session?</string>
+    <string name="session_delete_confirm_body">This cannot be undone.</string>
 
     <!-- Statistics -->
     <string name="stats_title">Statistics</string>
