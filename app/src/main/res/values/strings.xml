@@ -118,9 +118,13 @@
     <string name="auth_register">Create account</string>
     <string name="auth_email">Email address</string>
     <string name="auth_password">Password</string>
+    <string name="auth_confirm_password">Confirm password</string>
     <string name="auth_google">Continue with Google</string>
-    <string name="auth_no_account">Don\'t have an account?</string>
-    <string name="auth_have_account">Already have an account?</string>
+    <string name="auth_no_account">Don\'t have an account? Sign up</string>
+    <string name="auth_have_account">Already have an account? Log in</string>
+    <string name="auth_tagline">Track your driving time and earnings</string>
+    <string name="auth_register_subtitle">Create a free account to get started</string>
+    <string name="auth_passwords_no_match">Passwords do not match</string>
 
     <!-- Notifications -->
     <string name="notification_channel_name">Break reminders</string>

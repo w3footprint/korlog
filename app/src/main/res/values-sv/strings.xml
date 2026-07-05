@@ -118,9 +118,13 @@
     <string name="auth_register">Skapa konto</string>
     <string name="auth_email">E-postadress</string>
     <string name="auth_password">Lösenord</string>
+    <string name="auth_confirm_password">Bekräfta lösenord</string>
     <string name="auth_google">Fortsätt med Google</string>
-    <string name="auth_no_account">Har du inget konto?</string>
-    <string name="auth_have_account">Har du redan ett konto?</string>
+    <string name="auth_no_account">Inget konto? Registrera dig</string>
+    <string name="auth_have_account">Har du redan ett konto? Logga in</string>
+    <string name="auth_tagline">Spåra din körtid och dina intäkter</string>
+    <string name="auth_register_subtitle">Skapa ett gratis konto för att komma igång</string>
+    <string name="auth_passwords_no_match">Lösenorden matchar inte</string>
 
     <!-- Notifications -->
     <string name="notification_channel_name">Pauspåminnelser</string>

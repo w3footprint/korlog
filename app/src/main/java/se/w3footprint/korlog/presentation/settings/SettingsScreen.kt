@@ -43,7 +43,11 @@ import se.w3footprint.korlog.R
 import se.w3footprint.korlog.presentation.common.theme.Green500
 
 @Composable
-fun SettingsScreen(onProUpgradeClick: () -> Unit, onAboutClick: () -> Unit) {
+fun SettingsScreen(
+    onProUpgradeClick: () -> Unit,
+    onAboutClick: () -> Unit,
+    onSignOut: () -> Unit = {}
+) {
     var notificationsEnabled by remember { mutableStateOf(true) }
 
     Column(
@@ -93,6 +97,17 @@ fun SettingsScreen(onProUpgradeClick: () -> Unit, onAboutClick: () -> Unit) {
                 label = stringResource(R.string.settings_notifications),
                 checked = notificationsEnabled,
                 onCheckedChange = { notificationsEnabled = it }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Account section
+        SettingsSection(label = stringResource(R.string.settings_account)) {
+            SettingsNavRow(
+                icon = Icons.Outlined.Info,
+                label = stringResource(R.string.settings_sign_out),
+                onClick = onSignOut
             )
         }
 
