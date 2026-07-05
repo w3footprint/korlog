@@ -123,10 +123,11 @@ fun SessionSummaryScreen(
 @Composable
 private fun SummaryCard(session: DrivingSession) {
     val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-    val durationHours = (session.durationMillis / 3_600_000).toInt()
-    val durationMinutes = ((session.durationMillis % 3_600_000) / 60_000).toInt()
-    val hourlyRate = if (session.durationMillis > 0)
-        session.earningsSek / (session.durationMillis / 3_600_000.0) else 0.0
+    val drivingMillis = session.drivingDurationMillis
+    val durationHours = (drivingMillis / 3_600_000).toInt()
+    val durationMinutes = ((drivingMillis % 3_600_000) / 60_000).toInt()
+    val hourlyRate = if (drivingMillis > 0)
+        session.earningsSek / (drivingMillis / 3_600_000.0) else 0.0
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -160,6 +161,15 @@ private fun SummaryCard(session: DrivingSession) {
                 value = if (durationHours > 0) "$durationHours h $durationMinutes min"
                 else "$durationMinutes min"
             )
+            if (session.breakDurationMillis > 0) {
+                val bH = (session.breakDurationMillis / 3_600_000).toInt()
+                val bM = ((session.breakDurationMillis % 3_600_000) / 60_000).toInt()
+                Spacer(modifier = Modifier.height(10.dp))
+                SummaryRow(
+                    label = stringResource(R.string.session_break_duration),
+                    value = if (bH > 0) "$bH h $bM min" else "$bM min"
+                )
+            }
             Spacer(modifier = Modifier.height(10.dp))
             SummaryRow(
                 label = stringResource(R.string.session_detail_hourly_rate),

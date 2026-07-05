@@ -27,10 +27,28 @@ class ActiveSessionViewModel @Inject constructor(
     fun startSession() {
         val now = System.currentTimeMillis()
         _uiState.update { it.copy(isRunning = true, startTime = now, elapsedMillis = 0L) }
-        startTimer()
+        startTicking()
     }
 
-    private fun startTimer() {
+    fun takeBreak() {
+        timerJob?.cancel()
+        _uiState.update { it.copy(isOnBreak = true, currentBreakStartMillis = System.currentTimeMillis()) }
+    }
+
+    fun resumeFromBreak() {
+        val now = System.currentTimeMillis()
+        _uiState.update { state ->
+            val breakDuration = now - state.currentBreakStartMillis
+            state.copy(
+                isOnBreak = false,
+                totalBreakMillis = state.totalBreakMillis + breakDuration,
+                currentBreakStartMillis = 0L
+            )
+        }
+        startTicking()
+    }
+
+    private fun startTicking() {
         timerJob?.cancel()
         timerJob = viewModelScope.launch {
             while (true) {
@@ -71,14 +89,26 @@ class ActiveSessionViewModel @Inject constructor(
     }
 
     fun confirmStop() {
+        // If stopping during a break, close the break first
+        val now = System.currentTimeMillis()
+        _uiState.update { state ->
+            val extraBreak = if (state.isOnBreak) now - state.currentBreakStartMillis else 0L
+            state.copy(
+                showStopConfirm = false,
+                isSaving = true,
+                isOnBreak = false,
+                totalBreakMillis = state.totalBreakMillis + extraBreak
+            )
+        }
         timerJob?.cancel()
-        _uiState.update { it.copy(showStopConfirm = false, isSaving = true) }
+
         val state = _uiState.value
-        val endTime = System.currentTimeMillis()
+        val endTime = now
         viewModelScope.launch {
             val id = saveSession(
                 startTime = state.startTime,
                 endTime = endTime,
+                breakDurationMillis = state.totalBreakMillis,
                 earningsSek = state.earningsSek,
                 distanceKm = state.distanceKm,
                 platform = state.selectedPlatform,

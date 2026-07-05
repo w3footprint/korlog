@@ -22,7 +22,9 @@ object DatabaseModule {
             context,
             TaxiDatabase::class.java,
             TaxiDatabase.DATABASE_NAME
-        ).build()
+        )
+            .addMigrations(TaxiDatabase.MIGRATION_1_2)
+            .build()
     }
 
     @Provides

@@ -27,6 +27,7 @@ class SaveSessionUseCaseTest {
         useCase(
             startTime = start,
             endTime = end,
+            breakDurationMillis = 0L,
             earningsSek = 400.0,
             distanceKm = 50.0,
             platform = Platform.UBER,
@@ -73,7 +74,10 @@ class SaveSessionUseCaseTest {
     fun `calls repository insertSession exactly once`() = runTest {
         coEvery { repository.insertSession(any()) } returns 1L
 
-        useCase(0L, 3_600_000L, 300.0, 0.0, Platform.CABONLINE, "")
+        useCase(
+            startTime = 0L, endTime = 3_600_000L, breakDurationMillis = 0L,
+            earningsSek = 300.0, distanceKm = 0.0, platform = Platform.CABONLINE, notes = ""
+        )
 
         coVerify(exactly = 1) { repository.insertSession(any()) }
     }

@@ -46,6 +46,12 @@
     <string name="session_summary_title">Session saved!</string>
     <string name="session_summary_subtitle">Great work. Here\'s your summary.</string>
     <string name="session_summary_done">Back to dashboard</string>
+    <string name="session_on_break">On break</string>
+    <string name="session_take_break">Take a break</string>
+    <string name="session_resume">Resume driving</string>
+    <string name="session_break_total">Break: </string>
+    <string name="session_break_hint">Timer paused. Break time is not counted as driving time.</string>
+    <string name="session_break_duration">Break duration</string>
     <string name="session_stop_confirm_title">End session?</string>
     <string name="session_stop_confirm_body">This will save your session and return to the dashboard.</string>
     <string name="platform_uber">Uber</string>

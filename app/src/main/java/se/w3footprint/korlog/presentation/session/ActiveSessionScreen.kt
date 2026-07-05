@@ -22,7 +22,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material.icons.outlined.Coffee
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -31,6 +33,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -47,6 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -84,28 +88,56 @@ fun ActiveSessionScreen(
             .padding(horizontal = 20.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Status label
         Text(
-            text = stringResource(R.string.session_driving_time),
+            text = if (uiState.isOnBreak)
+                stringResource(R.string.session_on_break)
+            else
+                stringResource(R.string.session_driving_time),
             style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = if (uiState.isOnBreak) MaterialTheme.colorScheme.onSurfaceVariant
+            else MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Live timer
+        // Main driving timer
         Text(
-            text = uiState.formattedTime,
+            text = uiState.formattedDrivingTime,
             fontSize = 64.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Monospace,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = if (uiState.isOnBreak)
+                MaterialTheme.colorScheme.onSurfaceVariant
+            else
+                MaterialTheme.colorScheme.onBackground,
             letterSpacing = 2.sp
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // Break time indicator
+        if (uiState.totalBreakMillis > 0 || uiState.isOnBreak) {
+            Spacer(modifier = Modifier.height(6.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Coffee,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(14.dp)
+                )
+                Text(
+                    text = "  ${stringResource(R.string.session_break_total)} ${uiState.formattedBreakTime}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
 
-        // Live rate
-        if (uiState.hourlyRate > 0) {
+        // Live hourly rate
+        if (uiState.hourlyRate > 0 && !uiState.isOnBreak) {
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "≈ %,.0f kr/h".format(uiState.hourlyRate),
                 style = MaterialTheme.typography.bodyLarge,
@@ -114,9 +146,52 @@ fun ActiveSessionScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        if (uiState.isOnBreak) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.session_break_hint),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+        }
 
-        // Earnings input
+        Spacer(modifier = Modifier.height(28.dp))
+
+        // Break / Resume button
+        if (uiState.isOnBreak) {
+            Button(
+                onClick = { viewModel.resumeFromBreak() },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Green500)
+            ) {
+                Icon(Icons.Filled.PlayArrow, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.session_resume),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
+        } else {
+            OutlinedButton(
+                onClick = { viewModel.takeBreak() },
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Icon(Icons.Outlined.Coffee, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = stringResource(R.string.session_take_break),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Earnings & distance
         InputCard {
             OutlinedTextField(
                 value = uiState.earningsInput,
@@ -132,9 +207,7 @@ fun ActiveSessionScreen(
                     unfocusedBorderColor = MaterialTheme.colorScheme.outline
                 )
             )
-
             Spacer(modifier = Modifier.height(12.dp))
-
             OutlinedTextField(
                 value = uiState.distanceInput,
                 onValueChange = viewModel::onDistanceChanged,
@@ -186,14 +259,12 @@ fun ActiveSessionScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Stop button
         Button(
             onClick = { viewModel.onStopRequested() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
+            modifier = Modifier.fillMaxWidth().height(56.dp),
             shape = RoundedCornerShape(14.dp),
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
             enabled = !uiState.isSaving
@@ -205,11 +276,7 @@ fun ActiveSessionScreen(
                     strokeWidth = 2.dp
                 )
             } else {
-                Icon(
-                    imageVector = Icons.Filled.Stop,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
+                Icon(Icons.Filled.Stop, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = stringResource(R.string.session_stop),
@@ -230,28 +297,24 @@ private fun InputCard(content: @Composable () -> Unit) {
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            content()
-        }
+        Column(modifier = Modifier.padding(16.dp)) { content() }
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PlatformPicker(selected: Platform, onSelect: (Platform) -> Unit) {
-    val platforms = Platform.entries
     FlowRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        platforms.forEach { platform ->
+        Platform.entries.forEach { platform ->
             val isSelected = platform == selected
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(20.dp))
                     .background(
-                        if (isSelected) MaterialTheme.colorScheme.primary
-                        else Color.Transparent
+                        if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
                     )
                     .border(
                         width = 1.dp,
@@ -286,14 +349,10 @@ private fun StopConfirmDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
             Button(
                 onClick = onConfirm,
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-            ) {
-                Text(stringResource(R.string.session_stop))
-            }
+            ) { Text(stringResource(R.string.session_stop)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel))
-            }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
 }
