@@ -94,6 +94,18 @@
     <string name="pro_upgrade">Upgrade to PRO</string>
     <string name="pro_price">99 kr · one-time payment</string>
     <string name="pro_badge">PRO</string>
+    <string name="pro_one_time_note">Pay once, use forever. No subscription.</string>
+    <string name="pro_cta">Unlock PRO — 99 kr</string>
+    <string name="pro_restore">Restore purchase</string>
+
+    <!-- About -->
+    <string name="about_version">Version 1.0.0</string>
+    <string name="about_tagline">Built for Swedish taxi and rideshare drivers</string>
+    <string name="about_developer">Developer</string>
+    <string name="about_legal">Organisation</string>
+    <string name="about_legal_value">W3Footprint enskild firma</string>
+    <string name="about_contact">Contact</string>
+    <string name="about_legal_note">KörLog follows Swedish driving time law (Vägarbetstidslagen 2005:395). Limits shown are informational — always check official sources.</string>
 
     <!-- Auth -->
     <string name="auth_login">Log in</string>
