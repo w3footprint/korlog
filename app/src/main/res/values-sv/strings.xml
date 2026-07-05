@@ -43,6 +43,9 @@
     <string name="session_distance">Körsträcka (mil)</string>
     <string name="session_notes">Anteckningar</string>
     <string name="session_driving_time">Körtid</string>
+    <string name="session_summary_title">Passet sparat!</string>
+    <string name="session_summary_subtitle">Bra jobbat. Här är din sammanfattning.</string>
+    <string name="session_summary_done">Tillbaka till översikten</string>
     <string name="session_stop_confirm_title">Avsluta passet?</string>
     <string name="session_stop_confirm_body">Passet sparas och du återgår till översikten.</string>
     <string name="platform_uber">Uber</string>
