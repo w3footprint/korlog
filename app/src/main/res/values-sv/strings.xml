@@ -1,0 +1,90 @@
+<resources>
+    <string name="app_name">KörLog</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Hem</string>
+    <string name="nav_history">Historik</string>
+    <string name="nav_stats">Statistik</string>
+    <string name="nav_settings">Inställningar</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">KörLog</string>
+    <string name="session_start">Starta pass</string>
+    <string name="session_stop">Avsluta pass</string>
+    <string name="this_week">Denna vecka</string>
+    <string name="this_month">Denna månad</string>
+    <string name="recent_sessions">Senaste pass</string>
+    <string name="hours_format">%.1f h</string>
+    <string name="earnings_format">%.0f kr</string>
+
+    <!-- Compliance -->
+    <string name="compliance_title">Licenskydd</string>
+    <string name="compliance_good">Du är redo att köra</string>
+    <string name="compliance_rest">Vila rekommenderas</string>
+    <string name="compliance_limit">Veckogränsen nådd</string>
+    <string name="compliance_hours_format">%.1f / %.0f h</string>
+
+    <!-- Session -->
+    <string name="session_platform">Plattform</string>
+    <string name="session_earnings">Intäkter (SEK)</string>
+    <string name="session_distance">Körsträcka (mil)</string>
+    <string name="session_notes">Anteckningar</string>
+    <string name="session_driving_time">Kört tid</string>
+    <string name="platform_uber">Uber</string>
+    <string name="platform_bolt">Bolt</string>
+    <string name="platform_cabonline">Cabonline</string>
+    <string name="platform_taxikurir">TaxiKurir</string>
+    <string name="platform_sverigetaxi">Sverigetaxi</string>
+    <string name="platform_other">Övrigt</string>
+
+    <!-- History -->
+    <string name="history_title">Historik</string>
+    <string name="history_filter_all">Alla</string>
+    <string name="history_empty">Inga pass ännu.\nStarta ett pass för att se din historik här.</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">Statistik</string>
+    <string name="stats_period_week">Vecka</string>
+    <string name="stats_period_month">Månad</string>
+    <string name="stats_period_year">År</string>
+    <string name="stats_earnings_by_platform">Intäkter per plattform</string>
+    <string name="stats_hours_by_day">Timmar per dag</string>
+    <string name="stats_export_pro">Exportera rapport (PRO)</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Inställningar</string>
+    <string name="settings_account">Konto</string>
+    <string name="settings_subscription">Prenumeration</string>
+    <string name="settings_limits">Arbetstidsgränser</string>
+    <string name="settings_weekly_limit">Veckogräns (timmar)</string>
+    <string name="settings_monthly_limit">Månadsgräns (timmar)</string>
+    <string name="settings_language">Språk</string>
+    <string name="settings_notifications">Notifikationer</string>
+    <string name="settings_dark_mode">Mörkt läge</string>
+    <string name="settings_sign_out">Logga ut</string>
+    <string name="settings_about">Om KörLog</string>
+    <string name="settings_privacy">Integritetspolicy</string>
+
+    <!-- Pro -->
+    <string name="pro_upgrade">Uppgradera till PRO</string>
+    <string name="pro_price">99 kr · engångsbetalning</string>
+    <string name="pro_badge">PRO</string>
+
+    <!-- Auth -->
+    <string name="auth_login">Logga in</string>
+    <string name="auth_register">Skapa konto</string>
+    <string name="auth_email">E-postadress</string>
+    <string name="auth_password">Lösenord</string>
+    <string name="auth_google">Fortsätt med Google</string>
+    <string name="auth_no_account">Har du inget konto?</string>
+    <string name="auth_have_account">Har du redan ett konto?</string>
+
+    <!-- General -->
+    <string name="loading">Laddar…</string>
+    <string name="error_generic">Något gick fel. Försök igen.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Avbryt</string>
+    <string name="save">Spara</string>
+    <string name="delete">Radera</string>
+    <string name="confirm">Bekräfta</string>
+</resources>

@@ -1,3 +1,90 @@
 <resources>
     <string name="app_name">KörLog</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_history">History</string>
+    <string name="nav_stats">Statistics</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">KörLog</string>
+    <string name="session_start">Start driving</string>
+    <string name="session_stop">Stop driving</string>
+    <string name="this_week">This week</string>
+    <string name="this_month">This month</string>
+    <string name="recent_sessions">Recent sessions</string>
+    <string name="hours_format">%.1f h</string>
+    <string name="earnings_format">%.0f kr</string>
+
+    <!-- Compliance -->
+    <string name="compliance_title">License protection</string>
+    <string name="compliance_good">You\'re good to drive</string>
+    <string name="compliance_rest">Break recommended</string>
+    <string name="compliance_limit">Weekly limit reached</string>
+    <string name="compliance_hours_format">%.1f / %.0f h</string>
+
+    <!-- Session -->
+    <string name="session_platform">Platform</string>
+    <string name="session_earnings">Earnings (SEK)</string>
+    <string name="session_distance">Distance (mil)</string>
+    <string name="session_notes">Notes</string>
+    <string name="session_driving_time">Driving time</string>
+    <string name="platform_uber">Uber</string>
+    <string name="platform_bolt">Bolt</string>
+    <string name="platform_cabonline">Cabonline</string>
+    <string name="platform_taxikurir">TaxiKurir</string>
+    <string name="platform_sverigetaxi">Sverigetaxi</string>
+    <string name="platform_other">Other</string>
+
+    <!-- History -->
+    <string name="history_title">History</string>
+    <string name="history_filter_all">All</string>
+    <string name="history_empty">No sessions yet.\nStart driving to see your history here.</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">Statistics</string>
+    <string name="stats_period_week">Week</string>
+    <string name="stats_period_month">Month</string>
+    <string name="stats_period_year">Year</string>
+    <string name="stats_earnings_by_platform">Earnings by platform</string>
+    <string name="stats_hours_by_day">Hours by day</string>
+    <string name="stats_export_pro">Export report (PRO)</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_account">Account</string>
+    <string name="settings_subscription">Subscription</string>
+    <string name="settings_limits">Working hour limits</string>
+    <string name="settings_weekly_limit">Weekly limit (hours)</string>
+    <string name="settings_monthly_limit">Monthly limit (hours)</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_dark_mode">Dark mode</string>
+    <string name="settings_sign_out">Sign out</string>
+    <string name="settings_about">About KörLog</string>
+    <string name="settings_privacy">Privacy policy</string>
+
+    <!-- Pro -->
+    <string name="pro_upgrade">Upgrade to PRO</string>
+    <string name="pro_price">99 kr · one-time payment</string>
+    <string name="pro_badge">PRO</string>
+
+    <!-- Auth -->
+    <string name="auth_login">Log in</string>
+    <string name="auth_register">Create account</string>
+    <string name="auth_email">Email address</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_google">Continue with Google</string>
+    <string name="auth_no_account">Don\'t have an account?</string>
+    <string name="auth_have_account">Already have an account?</string>
+
+    <!-- General -->
+    <string name="loading">Loading…</string>
+    <string name="error_generic">Something went wrong. Please try again.</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="confirm">Confirm</string>
 </resources>
