@@ -11,6 +11,7 @@ class SaveSessionUseCase @Inject constructor(
     suspend operator fun invoke(
         startTime: Long,
         endTime: Long,
+        breakDurationMillis: Long = 0L,
         earningsSek: Double,
         distanceKm: Double,
         platform: Platform,
@@ -20,6 +21,7 @@ class SaveSessionUseCase @Inject constructor(
             startTime = startTime,
             endTime = endTime,
             durationMillis = endTime - startTime,
+            breakDurationMillis = breakDurationMillis,
             earningsSek = earningsSek,
             distanceKm = distanceKm,
             platform = platform,

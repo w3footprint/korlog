@@ -6,21 +6,21 @@ import org.junit.Test
 class ActiveSessionUiStateTest {
 
     @Test
-    fun `formattedTime shows zeroes when no time elapsed`() {
+    fun `formattedDrivingTime shows zeroes when no time elapsed`() {
         val state = ActiveSessionUiState(elapsedMillis = 0L)
-        assertEquals("00:00:00", state.formattedTime)
+        assertEquals("00:00:00", state.formattedDrivingTime)
     }
 
     @Test
-    fun `formattedTime formats one hour correctly`() {
+    fun `formattedDrivingTime formats one hour correctly`() {
         val state = ActiveSessionUiState(elapsedMillis = 3_600_000L)
-        assertEquals("01:00:00", state.formattedTime)
+        assertEquals("01:00:00", state.formattedDrivingTime)
     }
 
     @Test
-    fun `formattedTime formats mixed hours minutes seconds`() {
+    fun `formattedDrivingTime formats mixed hours minutes seconds`() {
         val state = ActiveSessionUiState(elapsedMillis = 3_723_000L) // 1h 2m 3s
-        assertEquals("01:02:03", state.formattedTime)
+        assertEquals("01:02:03", state.formattedDrivingTime)
     }
 
     @Test
