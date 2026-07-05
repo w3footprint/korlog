@@ -1,4 +1,4 @@
-package se.w3footprint.taxiworktracker.domain.repository
+package se.w3footprint.korlog.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import se.w3footprint.taxiworktracker.domain.model.DrivingSession

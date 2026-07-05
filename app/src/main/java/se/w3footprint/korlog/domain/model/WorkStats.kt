@@ -1,4 +1,4 @@
-package se.w3footprint.taxiworktracker.domain.model
+package se.w3footprint.korlog.domain.model
 
 data class WorkStats(
     val totalDurationMillis: Long,

@@ -1,4 +1,4 @@
-# TaxiWorkTracker
+# KörLog
 
 An Android app for Swedish taxi and rideshare drivers to track working hours, monitor earnings, and stay within legal driving time limits.
 
@@ -6,7 +6,7 @@ An Android app for Swedish taxi and rideshare drivers to track working hours, mo
 
 Taxi drivers in Sweden work across multiple platforms — Uber, Bolt, Cabonline and others — often without a clear picture of their total hours or income. Swedish law sets strict limits on driving time, and violations can cost a driver their license.
 
-TaxiWorkTracker keeps all of that in one place. Start a session when you begin driving, stop it when you're done, log your earnings and distance. The app handles the rest — weekly and monthly summaries, legal hour tracking, mileage logs for tax deductions, and VAT calculations ready for Skatteverket.
+KörLog keeps all of that in one place. Start a session when you begin driving, stop it when you're done, log your earnings and distance. The app handles the rest — weekly and monthly summaries, legal hour tracking, mileage logs for tax deductions, and VAT calculations ready for Skatteverket.
 
 The app is built for the driver, not against them. No surveillance, no alarms for normal behavior. Just clear, honest information that helps drivers protect their license and understand their income.
 
@@ -43,7 +43,7 @@ The app is built for the driver, not against them. No surveillance, no alarms fo
 ## Project structure
 
 ```
-app/src/main/java/se/w3footprint/taxiworktracker/
+app/src/main/java/se/w3footprint/korlog/
 ├── data/          # Room database, Firestore, repository implementations
 ├── domain/        # Models, repository interfaces, use cases
 ├── presentation/  # Screens, ViewModels, UI state

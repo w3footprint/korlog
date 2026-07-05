@@ -1,5 +1,5 @@
 # Design Specification
-## TaxiWorkTracker
+## KörLog
 **Version:** 1.0  
 **Date:** 2026-07-05  
 **Author:** Ali Abdullah
@@ -124,7 +124,7 @@ Root
 
 ```
 ┌─────────────────────────────────┐
-│  [≡]   TaxiTracker    [👤]      │  ← TopBar
+│  [≡]   KörLog    [👤]      │  ← TopBar
 ├─────────────────────────────────┤
 │                                 │
 │  ┌─────────────────────────┐   │

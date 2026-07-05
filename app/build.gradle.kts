@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = "se.w3footprint.taxiworktracker"
+    namespace = "se.w3footprint.korlog"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "se.w3footprint.taxiworktracker"
+        applicationId = "se.w3footprint.korlog"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

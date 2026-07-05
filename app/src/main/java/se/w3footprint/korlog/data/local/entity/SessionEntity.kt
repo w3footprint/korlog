@@ -1,4 +1,4 @@
-package se.w3footprint.taxiworktracker.data.local.entity
+package se.w3footprint.korlog.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

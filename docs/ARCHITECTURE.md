@@ -1,5 +1,5 @@
 # Technical Architecture
-## TaxiWorkTracker
+## KörLog
 **Version:** 1.0  
 **Date:** 2026-07-05  
 **Author:** Ali Abdullah
@@ -38,7 +38,7 @@ The app is split into three independent layers. Each layer only communicates wit
 ## 2. Package Structure
 
 ```
-se.w3footprint.taxiworktracker/
+se.w3footprint.korlog/
 │
 ├── data/
 │   ├── local/

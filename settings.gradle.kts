@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TaxiWorkTracker"
+rootProject.name = "KörLog"
 include(":app")
  

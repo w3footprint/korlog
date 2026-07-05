@@ -1,4 +1,4 @@
-package se.w3footprint.taxiworktracker.data.local.dao
+package se.w3footprint.korlog.data.local.dao
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow

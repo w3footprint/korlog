@@ -1,5 +1,5 @@
 # Product Requirements Document
-## TaxiWorkTracker
+## KörLog
 **Version:** 1.0  
 **Date:** 2026-07-05  
 **Author:** Ali Abdullah  
@@ -13,7 +13,7 @@ Taxi and rideshare drivers in Sweden work across multiple platforms — Uber, Bo
 
 There is currently no app on the Swedish market that combines working hour compliance with Swedish-specific tax tracking. Drivers either rely on paper logs, spreadsheets, or nothing at all.
 
-TaxiWorkTracker solves this by giving drivers a simple, private tool that tracks their time and money — so they can focus on driving, not paperwork.
+KörLog solves this by giving drivers a simple, private tool that tracks their time and money — so they can focus on driving, not paperwork.
 
 ---
 
