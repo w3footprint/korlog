@@ -2,8 +2,8 @@ package se.w3footprint.korlog.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import se.w3footprint.taxiworktracker.domain.model.DrivingSession
-import se.w3footprint.taxiworktracker.domain.model.Platform
+import se.w3footprint.korlog.domain.model.DrivingSession
+import se.w3footprint.korlog.domain.model.Platform
 
 @Entity(tableName = "sessions")
 data class SessionEntity(

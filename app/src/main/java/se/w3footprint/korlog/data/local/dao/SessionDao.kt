@@ -2,7 +2,7 @@ package se.w3footprint.korlog.data.local.dao
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
-import se.w3footprint.taxiworktracker.data.local.entity.SessionEntity
+import se.w3footprint.korlog.data.local.entity.SessionEntity
 
 @Dao
 interface SessionDao {

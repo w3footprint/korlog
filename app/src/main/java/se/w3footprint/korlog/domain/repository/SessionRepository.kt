@@ -1,7 +1,7 @@
 package se.w3footprint.korlog.domain.repository
 
 import kotlinx.coroutines.flow.Flow
-import se.w3footprint.taxiworktracker.domain.model.DrivingSession
+import se.w3footprint.korlog.domain.model.DrivingSession
 
 interface SessionRepository {
     fun getAllSessions(): Flow<List<DrivingSession>>
