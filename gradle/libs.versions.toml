@@ -1,7 +1,7 @@
 [versions]
 agp = "9.2.0"
 kotlin = "2.1.21"
-ksp = "2.1.21-1.0.29"
+ksp = "2.1.21-2.0.2"
 composeBom = "2026.02.01"
 
 # AndroidX Core
