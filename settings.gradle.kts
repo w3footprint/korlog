@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "KörLog"
+rootProject.name = "Korlog"
 include(":app")
  
