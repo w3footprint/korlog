@@ -133,12 +133,26 @@ class ActiveSessionManager @Inject constructor(
         persist()
     }
 
+    private var frozenAt: Long = 0L
+
     fun freezeForStop() {
+        frozenAt = System.currentTimeMillis()
         timerJob?.cancel()
     }
 
     fun unfreezeAfterDismiss() {
-        if (_state.value.isRunning && !_state.value.isOnBreak) startTicking()
+        if (!_state.value.isRunning || _state.value.isOnBreak) return
+        val now = System.currentTimeMillis()
+        val frozenDuration = if (frozenAt > 0L) now - frozenAt else 0L
+        frozenAt = 0L
+        _state.update { s ->
+            s.copy(
+                totalBreakMillis = s.totalBreakMillis + frozenDuration,
+                elapsedMillis = (now - s.startTime).coerceAtLeast(0L)
+            )
+        }
+        persist()
+        startTicking()
     }
 
     fun stopAndClear(): ActiveSessionState {
