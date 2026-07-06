@@ -43,6 +43,7 @@ class FirestoreRepository @Inject constructor(
             try {
                 se.w3footprint.korlog.data.local.entity.SessionEntity(
                     id = doc.id.toLong(),
+                    userId = uid,
                     startTime = doc.getLong("startTime") ?: 0L,
                     endTime = doc.getLong("endTime") ?: 0L,
                     durationMillis = doc.getLong("durationMillis") ?: 0L,
