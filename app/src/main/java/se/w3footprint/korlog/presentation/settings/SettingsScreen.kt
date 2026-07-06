@@ -29,11 +29,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -46,9 +49,15 @@ import se.w3footprint.korlog.presentation.common.theme.Green500
 fun SettingsScreen(
     onProUpgradeClick: () -> Unit,
     onAboutClick: () -> Unit,
-    onSignOut: () -> Unit = {}
+    onSignOut: () -> Unit = {},
+    viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     var notificationsEnabled by remember { mutableStateOf(true) }
+
+    LaunchedEffect(uiState.signedOut) {
+        if (uiState.signedOut) onSignOut()
+    }
 
     Column(
         modifier = Modifier
@@ -107,7 +116,8 @@ fun SettingsScreen(
             SettingsNavRow(
                 icon = Icons.Outlined.Info,
                 label = stringResource(R.string.settings_sign_out),
-                onClick = onSignOut
+                onClick = { viewModel.signOut() },
+                isLoading = uiState.isSigningOut
             )
         }
 
@@ -201,11 +211,16 @@ private fun SettingsSection(label: String, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun SettingsNavRow(icon: ImageVector, label: String, onClick: () -> Unit) {
+private fun SettingsNavRow(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    isLoading: Boolean = false
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(enabled = !isLoading, onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -219,8 +234,15 @@ private fun SettingsNavRow(icon: ImageVector, label: String, onClick: () -> Unit
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
-        Icon(imageVector = Icons.Outlined.ChevronRight, contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+        if (isLoading) {
+            androidx.compose.material3.CircularProgressIndicator(
+                modifier = Modifier.size(16.dp),
+                strokeWidth = 2.dp
+            )
+        } else {
+            Icon(imageVector = Icons.Outlined.ChevronRight, contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+        }
     }
 }
 
