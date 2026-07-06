@@ -24,9 +24,9 @@ class GetComplianceStatusUseCase @Inject constructor(
             prefs.weeklyLimitHours,
             prefs.monthlyLimitHours
         ) { weekSessions, monthSessions, daySessions, weeklyLimit, monthlyLimit ->
-            val weeklyHours = weekSessions.sumOf { it.durationMillis } / 3_600_000.0
-            val monthlyHours = monthSessions.sumOf { it.durationMillis } / 3_600_000.0
-            val dailyHours = daySessions.sumOf { it.durationMillis } / 3_600_000.0
+            val weeklyHours = weekSessions.sumOf { it.drivingDurationMillis } / 3_600_000.0
+            val monthlyHours = monthSessions.sumOf { it.drivingDurationMillis } / 3_600_000.0
+            val dailyHours = daySessions.sumOf { it.drivingDurationMillis } / 3_600_000.0
             val lastSession = weekSessions.maxByOrNull { it.endTime }
             val restHours = lastSession?.let {
                 (System.currentTimeMillis() - it.endTime) / 3_600_000.0

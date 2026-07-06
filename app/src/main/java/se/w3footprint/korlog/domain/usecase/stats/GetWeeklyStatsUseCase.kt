@@ -14,7 +14,7 @@ class GetWeeklyStatsUseCase @Inject constructor(
         val (start, end) = currentWeekRange()
         return repository.getSessionsByDateRange(start, end).map { sessions ->
             WorkStats(
-                totalDurationMillis = sessions.sumOf { it.durationMillis },
+                totalDurationMillis = sessions.sumOf { it.drivingDurationMillis },
                 totalEarningsSek = sessions.sumOf { it.earningsSek },
                 totalDistanceKm = sessions.sumOf { it.distanceKm },
                 sessionCount = sessions.size

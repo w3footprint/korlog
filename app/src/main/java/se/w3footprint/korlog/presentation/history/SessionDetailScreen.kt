@@ -178,10 +178,10 @@ fun SessionDetailScreen(
 private fun SessionDetailContent(session: DrivingSession, modifier: Modifier = Modifier) {
     val dateFormatter = SimpleDateFormat("EEEE d MMMM yyyy", Locale.getDefault())
     val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
-    val durationHours = (session.durationMillis / 3_600_000).toInt()
-    val durationMinutes = ((session.durationMillis % 3_600_000) / 60_000).toInt()
-    val hourlyRate = if (session.durationMillis > 0)
-        session.earningsSek / (session.durationMillis / 3_600_000.0) else 0.0
+    val durationHours = (session.drivingDurationMillis / 3_600_000).toInt()
+    val durationMinutes = ((session.drivingDurationMillis % 3_600_000) / 60_000).toInt()
+    val hourlyRate = if (session.drivingDurationMillis > 0)
+        session.earningsSek / (session.drivingDurationMillis / 3_600_000.0) else 0.0
 
     Column(
         modifier = modifier

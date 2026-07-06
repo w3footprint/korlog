@@ -41,7 +41,7 @@ class StatsViewModel @Inject constructor(
     }
 
     private fun buildState(period: StatsPeriod, sessions: List<DrivingSession>): StatsUiState {
-        val totalMillis = sessions.sumOf { it.durationMillis }
+        val totalMillis = sessions.sumOf { it.drivingDurationMillis }
         val totalHours = totalMillis / 3_600_000.0
         val totalEarnings = sessions.sumOf { it.earningsSek }
         val hourlyRate = if (totalHours > 0) totalEarnings / totalHours else 0.0

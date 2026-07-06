@@ -175,8 +175,8 @@ private fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
 @Composable
 private fun HistorySessionCard(session: DrivingSession, onClick: () -> Unit) {
     val dateFormatter = SimpleDateFormat("EEE d MMM, HH:mm", Locale.getDefault())
-    val durationHours = (session.durationMillis / 3_600_000).toInt()
-    val durationMinutes = ((session.durationMillis % 3_600_000) / 60_000).toInt()
+    val durationHours = (session.drivingDurationMillis / 3_600_000).toInt()
+    val durationMinutes = ((session.drivingDurationMillis % 3_600_000) / 60_000).toInt()
 
     Card(
         modifier = Modifier
