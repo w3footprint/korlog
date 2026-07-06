@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import se.w3footprint.korlog.data.local.store.ActiveSessionStore
 import se.w3footprint.korlog.domain.repository.SessionRepository
+import se.w3footprint.korlog.domain.session.ActiveSessionManager
 import se.w3footprint.korlog.domain.usecase.stats.GetComplianceStatusUseCase
 import se.w3footprint.korlog.domain.usecase.stats.GetMonthlyStatsUseCase
 import se.w3footprint.korlog.domain.usecase.stats.GetWeeklyStatsUseCase
@@ -22,7 +22,7 @@ class DashboardViewModel @Inject constructor(
     private val getMonthlyStats: GetMonthlyStatsUseCase,
     private val getComplianceStatus: GetComplianceStatusUseCase,
     private val repository: SessionRepository,
-    private val sessionStore: ActiveSessionStore
+    private val sessionManager: ActiveSessionManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DashboardUiState())
@@ -36,7 +36,7 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 combine(getWeeklyStats(), getMonthlyStats(), getComplianceStatus()) { w, m, c -> Triple(w, m, c) },
-                combine(repository.getAllSessions(), sessionStore.state) { sessions, store -> Pair(sessions, store) }
+                combine(repository.getAllSessions(), sessionManager.state) { sessions, session -> Pair(sessions, session) }
             ) { (weekly, monthly, compliance), (allSessions, sessionState) ->
                 DashboardUiState(
                     weeklyStats = weekly,
@@ -44,7 +44,8 @@ class DashboardViewModel @Inject constructor(
                     compliance = compliance,
                     recentSessions = allSessions.sortedByDescending { it.date }.take(5),
                     isLoading = false,
-                    hasActiveSession = sessionState.isRunning
+                    hasActiveSession = sessionState.isRunning,
+                    activeSessionElapsed = if (sessionState.isRunning) sessionState.formattedElapsed else null
                 )
             }.collect { state ->
                 _uiState.update { state }

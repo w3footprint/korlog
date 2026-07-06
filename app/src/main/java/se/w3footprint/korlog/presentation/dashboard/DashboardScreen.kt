@@ -81,6 +81,7 @@ fun DashboardScreen(
         item {
             StartSessionButton(
                 hasActiveSession = uiState.hasActiveSession,
+                elapsedTime = uiState.activeSessionElapsed,
                 onClick = onStartSession
             )
         }
@@ -121,12 +122,16 @@ private fun GreetingHeader() {
 }
 
 @Composable
-private fun StartSessionButton(hasActiveSession: Boolean, onClick: () -> Unit) {
+private fun StartSessionButton(
+    hasActiveSession: Boolean,
+    elapsedTime: String?,
+    onClick: () -> Unit
+) {
     Button(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp),
+            .height(if (hasActiveSession) 72.dp else 56.dp),
         shape = RoundedCornerShape(14.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = if (hasActiveSession) MaterialTheme.colorScheme.error
@@ -139,12 +144,21 @@ private fun StartSessionButton(hasActiveSession: Boolean, onClick: () -> Unit) {
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = if (hasActiveSession) stringResource(R.string.session_active_continue)
-            else stringResource(R.string.session_start),
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
-        )
+        Column {
+            Text(
+                text = if (hasActiveSession) stringResource(R.string.session_active_continue)
+                else stringResource(R.string.session_start),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            if (hasActiveSession && elapsedTime != null) {
+                Text(
+                    text = elapsedTime,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onError.copy(alpha = 0.8f)
+                )
+            }
+        }
     }
 }
 

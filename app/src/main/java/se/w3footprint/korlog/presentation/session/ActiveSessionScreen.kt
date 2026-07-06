@@ -73,9 +73,11 @@ fun ActiveSessionScreen(
         ActivityResultContracts.RequestPermission()
     ) { /* permission result handled silently — notifications are non-critical */ }
 
-    LaunchedEffect(Unit) {
-        // Only start a new session if none is already running (restored from store)
-        if (!uiState.isRunning) {
+    val sessionState by viewModel.sessionState.collectAsState()
+
+    LaunchedEffect(sessionState.isRestored) {
+        if (!sessionState.isRestored) return@LaunchedEffect
+        if (!sessionState.isRunning) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             }

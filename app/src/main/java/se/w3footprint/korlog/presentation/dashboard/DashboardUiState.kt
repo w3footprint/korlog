@@ -15,5 +15,6 @@ data class DashboardUiState(
     ),
     val recentSessions: List<DrivingSession> = emptyList(),
     val isLoading: Boolean = true,
-    val hasActiveSession: Boolean = false
+    val hasActiveSession: Boolean = false,
+    val activeSessionElapsed: String? = null
 )
