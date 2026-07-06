@@ -27,4 +27,7 @@ interface SessionDao {
 
     @Query("UPDATE sessions SET userId = :userId WHERE userId = ''")
     suspend fun claimOrphanedSessions(userId: String)
+
+    @Query("SELECT * FROM sessions WHERE userId = :userId")
+    suspend fun getAllSessionsOnce(userId: String): List<SessionEntity>
 }

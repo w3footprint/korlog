@@ -64,8 +64,10 @@ class SessionRepositoryImpl @Inject constructor(
         if (currentUid.isEmpty()) return
         sessionDao.claimOrphanedSessions(currentUid)
         try {
-            val sessions = firestoreRepository.fetchAllSessions()
-            sessions.forEach { sessionDao.insertSession(it) }
+            val local = sessionDao.getAllSessionsOnce(currentUid)
+            local.forEach { firestoreRepository.upsertSession(it.toDomain()) }
+            val cloud = firestoreRepository.fetchAllSessions()
+            cloud.forEach { sessionDao.insertSession(it) }
         } catch (_: Exception) {}
     }
 }
