@@ -38,6 +38,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -65,8 +69,17 @@ fun ActiveSessionScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { /* permission result handled silently — notifications are non-critical */ }
+
     LaunchedEffect(uiState.isRunning) {
-        if (!uiState.isRunning) viewModel.startSession()
+        if (!uiState.isRunning) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+            viewModel.startSession()
+        }
     }
 
     LaunchedEffect(uiState.savedSessionId) {
