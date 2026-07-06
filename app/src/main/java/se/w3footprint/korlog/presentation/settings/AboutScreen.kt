@@ -103,7 +103,7 @@ fun AboutScreen(onBack: () -> Unit) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
                     AboutRow(label = stringResource(R.string.about_legal), value = stringResource(R.string.about_legal_value))
                     HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
-                    AboutRow(label = stringResource(R.string.about_contact), value = "info@w3footprint.se")
+                    AboutRow(label = stringResource(R.string.about_contact), value = "hello@w3footprint.se")
                 }
             }
 
