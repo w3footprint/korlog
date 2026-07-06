@@ -113,7 +113,7 @@
     <string name="about_legal">Organisation</string>
     <string name="about_legal_value">W3Footprint enskild firma</string>
     <string name="about_contact">Contact</string>
-    <string name="about_legal_note">Default targets are a starting point, not a rulebook. Adjust them in Settings to match how you work.</string>
+    <string name="about_legal_note">Default targets reflect typical working patterns for Swedish taxi drivers. Adjust them in Settings to fit your week.</string>
 
     <!-- Auth -->
     <string name="auth_login">Log in</string>
