@@ -60,7 +60,6 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var notificationsEnabled by remember { mutableStateOf(true) }
     var editingWeeklyLimit by remember { mutableStateOf(false) }
     var editingMonthlyLimit by remember { mutableStateOf(false) }
 
@@ -133,8 +132,8 @@ fun SettingsScreen(
             SettingsToggleRow(
                 icon = Icons.Outlined.Notifications,
                 label = stringResource(R.string.settings_notifications),
-                checked = notificationsEnabled,
-                onCheckedChange = { notificationsEnabled = it }
+                checked = uiState.notificationsEnabled,
+                onCheckedChange = { viewModel.setNotificationsEnabled(it) }
             )
         }
 

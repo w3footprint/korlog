@@ -12,20 +12,23 @@ import kotlinx.coroutines.launch
 import se.w3footprint.korlog.data.auth.AuthRepository
 import se.w3footprint.korlog.data.local.store.UserPreferencesStore
 import se.w3footprint.korlog.domain.repository.SessionRepository
+import se.w3footprint.korlog.worker.BreakReminderScheduler
 import javax.inject.Inject
 
 data class SettingsUiState(
     val isSigningOut: Boolean = false,
     val signedOut: Boolean = false,
     val weeklyLimitHours: Int = 60,
-    val monthlyLimitHours: Int = 192
+    val monthlyLimitHours: Int = 192,
+    val notificationsEnabled: Boolean = true
 )
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val sessionRepository: SessionRepository,
-    private val prefs: UserPreferencesStore
+    private val prefs: UserPreferencesStore,
+    private val reminderScheduler: BreakReminderScheduler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -33,10 +36,20 @@ class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            combine(prefs.weeklyLimitHours, prefs.monthlyLimitHours) { weekly, monthly ->
-                weekly to monthly
-            }.collect { (weekly, monthly) ->
-                _uiState.update { it.copy(weeklyLimitHours = weekly, monthlyLimitHours = monthly) }
+            combine(
+                prefs.weeklyLimitHours,
+                prefs.monthlyLimitHours,
+                prefs.notificationsEnabled
+            ) { weekly, monthly, notifications ->
+                Triple(weekly, monthly, notifications)
+            }.collect { (weekly, monthly, notifications) ->
+                _uiState.update {
+                    it.copy(
+                        weeklyLimitHours = weekly,
+                        monthlyLimitHours = monthly,
+                        notificationsEnabled = notifications
+                    )
+                }
             }
         }
     }
@@ -47,6 +60,13 @@ class SettingsViewModel @Inject constructor(
 
     fun setMonthlyLimit(hours: Int) {
         viewModelScope.launch { prefs.setMonthlyLimitHours(hours) }
+    }
+
+    fun setNotificationsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            prefs.setNotificationsEnabled(enabled)
+            if (!enabled) reminderScheduler.cancel()
+        }
     }
 
     fun signOut() {

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -21,6 +22,7 @@ class UserPreferencesStore @Inject constructor(
     private object Keys {
         val WEEKLY_LIMIT_HOURS = intPreferencesKey("weekly_limit_hours")
         val MONTHLY_LIMIT_HOURS = intPreferencesKey("monthly_limit_hours")
+        val NOTIFICATIONS_ENABLED = booleanPreferencesKey("notifications_enabled")
     }
 
     val weeklyLimitHours: Flow<Int> = context.userPrefsDataStore.data.map { prefs ->
@@ -31,11 +33,19 @@ class UserPreferencesStore @Inject constructor(
         prefs[Keys.MONTHLY_LIMIT_HOURS] ?: 192
     }
 
+    val notificationsEnabled: Flow<Boolean> = context.userPrefsDataStore.data.map { prefs ->
+        prefs[Keys.NOTIFICATIONS_ENABLED] ?: true
+    }
+
     suspend fun setWeeklyLimitHours(hours: Int) {
         context.userPrefsDataStore.edit { it[Keys.WEEKLY_LIMIT_HOURS] = hours }
     }
 
     suspend fun setMonthlyLimitHours(hours: Int) {
         context.userPrefsDataStore.edit { it[Keys.MONTHLY_LIMIT_HOURS] = hours }
+    }
+
+    suspend fun setNotificationsEnabled(enabled: Boolean) {
+        context.userPrefsDataStore.edit { it[Keys.NOTIFICATIONS_ENABLED] = enabled }
     }
 }
