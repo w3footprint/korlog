@@ -8,5 +8,6 @@ data class HistoryUiState(
     val filteredSessions: List<DrivingSession> = emptyList(),
     val searchQuery: String = "",
     val selectedPlatform: Platform? = null,
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false
 )

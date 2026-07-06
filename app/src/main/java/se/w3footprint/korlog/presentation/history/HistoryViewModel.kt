@@ -53,6 +53,14 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
+    fun refresh() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isRefreshing = true) }
+            repository.syncFromCloud()
+            _uiState.update { it.copy(isRefreshing = false) }
+        }
+    }
+
     fun deleteSession(session: DrivingSession) {
         viewModelScope.launch {
             repository.deleteSession(session)
