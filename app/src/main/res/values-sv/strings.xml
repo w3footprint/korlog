@@ -28,14 +28,14 @@
     <string name="stats_sessions">Pass</string>
 
     <!-- Compliance -->
-    <string name="compliance_title">Licenskydd</string>
-    <string name="compliance_good">Du är redo att köra</string>
-    <string name="compliance_rest">Vila rekommenderas</string>
-    <string name="compliance_limit">Veckogränsen nådd</string>
+    <string name="compliance_title">Dina timmar</string>
+    <string name="compliance_good">Klart — kör på</string>
+    <string name="compliance_rest">Dags att ladda om</string>
+    <string name="compliance_limit">Veckans mål nått</string>
     <string name="compliance_hours_format">%.1f / %.0f h</string>
-    <string name="compliance_weekly_limit">Veckans körgräns</string>
-    <string name="compliance_average_warning">Du överstiger 48h-genomsnittet — vila är rekommenderat</string>
-    <string name="compliance_hard_limit_warning">60h-gränsen nådd — sluta köra nu för att skydda ditt körkort</string>
+    <string name="compliance_weekly_limit">Veckotimmar</string>
+    <string name="compliance_average_warning">48h+ den här veckan — bra jobbat, överväg en paus</string>
+    <string name="compliance_hard_limit_warning">60h nådd — du har förtjänat en ordentlig vila</string>
 
     <!-- Session -->
     <string name="session_platform">Plattform</string>
@@ -108,7 +108,7 @@
 
     <!-- About -->
     <string name="about_version">Version 1.0.0</string>
-    <string name="about_tagline">Byggd för svenska taxi- och samåkningsförare</string>
+    <string name="about_tagline">Byggd för svenska förare som värdesätter sin tid</string>
     <string name="about_developer">Utvecklare</string>
     <string name="about_legal">Organisation</string>
     <string name="about_legal_value">W3Footprint enskild firma</string>
@@ -124,7 +124,7 @@
     <string name="auth_google">Fortsätt med Google</string>
     <string name="auth_no_account">Inget konto? Registrera dig</string>
     <string name="auth_have_account">Har du redan ett konto? Logga in</string>
-    <string name="auth_tagline">Spåra din körtid och dina intäkter</string>
+    <string name="auth_tagline">Din tid, dina intäkter, dina villkor</string>
     <string name="auth_register_subtitle">Skapa ett gratis konto för att komma igång</string>
     <string name="auth_passwords_no_match">Lösenorden matchar inte</string>
     <string name="auth_forgot_password">Glömt lösenord</string>
@@ -139,7 +139,7 @@
     <string name="notification_channel_name">Pauspåminnelser</string>
     <string name="notification_channel_desc">Påminner dig om att ta en paus efter 6 timmars körning</string>
     <string name="notification_break_title">Dags för en paus</string>
-    <string name="notification_break_body">Du har kört i 6 timmar. Vägarbetstidslagen kräver en paus — ta minst 30 minuter.</string>
+    <string name="notification_break_body">Du har kört i 6 timmar — en 30-minuterspaus håller dig skarp och i form.</string>
 
     <!-- General -->
     <string name="loading">Laddar…</string>
