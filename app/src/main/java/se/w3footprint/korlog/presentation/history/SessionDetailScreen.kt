@@ -1,20 +1,29 @@
 package se.w3footprint.korlog.presentation.history
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -26,11 +35,15 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,12 +53,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import se.w3footprint.korlog.R
 import se.w3footprint.korlog.domain.model.DrivingSession
+import se.w3footprint.korlog.domain.model.Platform
 import se.w3footprint.korlog.presentation.common.theme.Green500
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -67,6 +84,24 @@ fun SessionDetailScreen(
 
     LaunchedEffect(uiState.deleted) {
         if (uiState.deleted) onBack()
+    }
+
+    if (uiState.isEditing) {
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            onDismissRequest = { viewModel.cancelEditing() },
+            sheetState = sheetState
+        ) {
+            EditSessionSheet(
+                uiState = uiState,
+                onEarningsChanged = viewModel::onEditEarningsChanged,
+                onDistanceChanged = viewModel::onEditDistanceChanged,
+                onPlatformSelected = viewModel::onEditPlatformChanged,
+                onNotesChanged = viewModel::onEditNotesChanged,
+                onSave = { viewModel.saveEdit() },
+                onDismiss = { viewModel.cancelEditing() }
+            )
+        }
     }
 
     if (showDeleteDialog) {
@@ -98,6 +133,10 @@ fun SessionDetailScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { viewModel.startEditing() }) {
+                        Icon(Icons.Outlined.Edit, contentDescription = stringResource(R.string.save),
+                            tint = MaterialTheme.colorScheme.onSurface)
+                    }
                     IconButton(onClick = { showDeleteDialog = true }) {
                         Icon(Icons.Outlined.Delete, contentDescription = stringResource(R.string.delete),
                             tint = MaterialTheme.colorScheme.error)
@@ -244,6 +283,140 @@ private fun SessionDetailContent(session: DrivingSession, modifier: Modifier = M
         }
 
         Spacer(modifier = Modifier.height(80.dp))
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun EditSessionSheet(
+    uiState: SessionDetailUiState,
+    onEarningsChanged: (String) -> Unit,
+    onDistanceChanged: (String) -> Unit,
+    onPlatformSelected: (Platform) -> Unit,
+    onNotesChanged: (String) -> Unit,
+    onSave: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .imePadding()
+            .navigationBarsPadding()
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 24.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.session_detail_title),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+        Spacer(modifier = Modifier.height(20.dp))
+
+        OutlinedTextField(
+            value = uiState.editEarnings,
+            onValueChange = onEarningsChanged,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.session_earnings)) },
+            suffix = { Text("kr") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            )
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = uiState.editDistance,
+            onValueChange = onDistanceChanged,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.session_distance)) },
+            suffix = { Text("km") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            )
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = stringResource(R.string.session_platform),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Platform.entries.forEach { platform ->
+                val isSelected = platform == uiState.editPlatform
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
+                        .border(
+                            width = 1.dp,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.outline,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .clickable { onPlatformSelected(platform) }
+                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = platform.name.lowercase().replaceFirstChar { it.uppercase() }
+                            .replace("_", " "),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                                else MaterialTheme.colorScheme.onSurface,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        OutlinedTextField(
+            value = uiState.editNotes,
+            onValueChange = onNotesChanged,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.session_notes)) },
+            minLines = 2,
+            maxLines = 4,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            )
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = onSave,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.save),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
 }
 

@@ -2,13 +2,15 @@ package se.w3footprint.korlog.domain.usecase.stats
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import se.w3footprint.korlog.data.local.store.UserPreferencesStore
 import se.w3footprint.korlog.domain.model.ComplianceStatus
 import se.w3footprint.korlog.domain.repository.SessionRepository
 import java.util.Calendar
 import javax.inject.Inject
 
 class GetComplianceStatusUseCase @Inject constructor(
-    private val repository: SessionRepository
+    private val repository: SessionRepository,
+    private val prefs: UserPreferencesStore
 ) {
     operator fun invoke(): Flow<ComplianceStatus> {
         val (weekStart, weekEnd) = currentWeekRange()
@@ -18,8 +20,10 @@ class GetComplianceStatusUseCase @Inject constructor(
         return combine(
             repository.getSessionsByDateRange(weekStart, weekEnd),
             repository.getSessionsByDateRange(monthStart, monthEnd),
-            repository.getSessionsByDateRange(dayStart, dayEnd)
-        ) { weekSessions, monthSessions, daySessions ->
+            repository.getSessionsByDateRange(dayStart, dayEnd),
+            prefs.weeklyLimitHours,
+            prefs.monthlyLimitHours
+        ) { weekSessions, monthSessions, daySessions, weeklyLimit, monthlyLimit ->
             val weeklyHours = weekSessions.sumOf { it.durationMillis } / 3_600_000.0
             val monthlyHours = monthSessions.sumOf { it.durationMillis } / 3_600_000.0
             val dailyHours = daySessions.sumOf { it.durationMillis } / 3_600_000.0
@@ -30,7 +34,10 @@ class GetComplianceStatusUseCase @Inject constructor(
 
             ComplianceStatus(
                 weeklyHours = weeklyHours,
+                weeklyHardLimitHours = weeklyLimit.toDouble(),
+                weeklyAverageLimitHours = 48.0,
                 monthlyHours = monthlyHours,
+                monthlyRecommendedLimitHours = monthlyLimit.toDouble(),
                 dailyHours = dailyHours,
                 dailyRestHours = restHours.coerceAtMost(24.0)
             )

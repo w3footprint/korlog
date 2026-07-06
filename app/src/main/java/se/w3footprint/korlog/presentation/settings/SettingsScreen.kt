@@ -12,22 +12,28 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Diamond
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Policy
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -41,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import se.w3footprint.korlog.R
 import se.w3footprint.korlog.presentation.common.theme.Green500
@@ -54,9 +61,29 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var notificationsEnabled by remember { mutableStateOf(true) }
+    var editingWeeklyLimit by remember { mutableStateOf(false) }
+    var editingMonthlyLimit by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.signedOut) {
         if (uiState.signedOut) onSignOut()
+    }
+
+    if (editingWeeklyLimit) {
+        HourLimitDialog(
+            title = stringResource(R.string.settings_weekly_limit),
+            current = uiState.weeklyLimitHours,
+            onConfirm = { viewModel.setWeeklyLimit(it); editingWeeklyLimit = false },
+            onDismiss = { editingWeeklyLimit = false }
+        )
+    }
+
+    if (editingMonthlyLimit) {
+        HourLimitDialog(
+            title = stringResource(R.string.settings_monthly_limit),
+            current = uiState.monthlyLimitHours,
+            onConfirm = { viewModel.setMonthlyLimit(it); editingMonthlyLimit = false },
+            onDismiss = { editingMonthlyLimit = false }
+        )
     }
 
     Column(
@@ -81,19 +108,21 @@ fun SettingsScreen(
 
         // Driving limits section
         SettingsSection(label = stringResource(R.string.settings_limits)) {
-            SettingsInfoRow(
+            SettingsEditRow(
                 icon = Icons.Outlined.Timer,
                 label = stringResource(R.string.settings_weekly_limit),
-                value = "60 h"
+                value = "${uiState.weeklyLimitHours} h",
+                onClick = { editingWeeklyLimit = true }
             )
             HorizontalDivider(
                 modifier = Modifier.padding(start = 52.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
-            SettingsInfoRow(
+            SettingsEditRow(
                 icon = Icons.Outlined.Timer,
                 label = stringResource(R.string.settings_monthly_limit),
-                value = "192 h"
+                value = "${uiState.monthlyLimitHours} h",
+                onClick = { editingMonthlyLimit = true }
             )
         }
 
@@ -247,10 +276,11 @@ private fun SettingsNavRow(
 }
 
 @Composable
-private fun SettingsInfoRow(icon: ImageVector, label: String, value: String) {
+private fun SettingsEditRow(icon: ImageVector, label: String, value: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
@@ -264,13 +294,55 @@ private fun SettingsInfoRow(icon: ImageVector, label: String, value: String) {
                 color = MaterialTheme.colorScheme.onSurface
             )
         }
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.size(6.dp))
+            Icon(
+                imageVector = Icons.Outlined.Edit,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(14.dp)
+            )
+        }
     }
+}
+
+@Composable
+private fun HourLimitDialog(
+    title: String,
+    current: Int,
+    onConfirm: (Int) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var input by remember { mutableStateOf(current.toString()) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(title) },
+        text = {
+            OutlinedTextField(
+                value = input,
+                onValueChange = { input = it.filter { c -> c.isDigit() } },
+                suffix = { Text("h") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
+            )
+        },
+        confirmButton = {
+            Button(onClick = {
+                val hours = input.toIntOrNull()
+                if (hours != null && hours > 0) onConfirm(hours)
+            }) { Text(stringResource(R.string.save)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        }
+    )
 }
 
 @Composable
