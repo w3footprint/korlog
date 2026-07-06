@@ -3,6 +3,7 @@ package se.w3footprint.korlog.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -22,7 +23,8 @@ class SessionRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth
 ) : SessionRepository {
 
-    private val syncScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var realtimeSyncJob: Job? = null
 
     private val uid get() = auth.currentUser?.uid ?: ""
 
@@ -42,18 +44,18 @@ class SessionRepositoryImpl @Inject constructor(
     override suspend fun insertSession(session: DrivingSession): Long {
         val currentUid = uid
         val id = sessionDao.insertSession(session.toEntity(currentUid))
-        syncScope.launch { firestoreRepository.upsertSession(session.copy(id = id)) }
+        scope.launch { firestoreRepository.upsertSession(session.copy(id = id)) }
         return id
     }
 
     override suspend fun updateSession(session: DrivingSession) {
         sessionDao.updateSession(session.toEntity(uid))
-        syncScope.launch { firestoreRepository.upsertSession(session) }
+        scope.launch { firestoreRepository.upsertSession(session) }
     }
 
     override suspend fun deleteSession(session: DrivingSession) {
         sessionDao.deleteSession(session.toEntity(uid))
-        syncScope.launch { firestoreRepository.deleteSession(session.id) }
+        scope.launch { firestoreRepository.deleteSession(session.id) }
     }
 
     override suspend fun getSessionById(id: Long): DrivingSession? =
@@ -69,5 +71,24 @@ class SessionRepositoryImpl @Inject constructor(
             val cloud = firestoreRepository.fetchAllSessions()
             cloud.forEach { sessionDao.insertSession(it) }
         } catch (_: Exception) {}
+        startRealtimeSync()
+    }
+
+    override fun stopRealtimeSync() {
+        realtimeSyncJob?.cancel()
+        realtimeSyncJob = null
+    }
+
+    private fun startRealtimeSync() {
+        realtimeSyncJob?.cancel()
+        realtimeSyncJob = scope.launch {
+            firestoreRepository.observeSessions().collect { sessions ->
+                sessions.forEach { sessionDao.insertSession(it) }
+                val cloudIds = sessions.map { it.id }.toSet()
+                val localIds = sessionDao.getAllSessionsOnce(uid).map { it.id }.toSet()
+                val deletedIds = localIds - cloudIds
+                deletedIds.forEach { sessionDao.deleteSessionById(it) }
+            }
+        }
     }
 }

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import se.w3footprint.korlog.data.auth.AuthRepository
+import se.w3footprint.korlog.domain.repository.SessionRepository
 import javax.inject.Inject
 
 data class SettingsUiState(
@@ -17,7 +18,8 @@ data class SettingsUiState(
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val sessionRepository: SessionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
@@ -26,6 +28,7 @@ class SettingsViewModel @Inject constructor(
     fun signOut() {
         viewModelScope.launch {
             _uiState.value = SettingsUiState(isSigningOut = true)
+            sessionRepository.stopRealtimeSync()
             authRepository.signOut()
             _uiState.value = SettingsUiState(signedOut = true)
         }

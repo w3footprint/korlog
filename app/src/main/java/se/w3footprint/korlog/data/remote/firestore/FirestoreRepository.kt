@@ -2,7 +2,11 @@ package se.w3footprint.korlog.data.remote.firestore
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import se.w3footprint.korlog.data.local.entity.SessionEntity
 import se.w3footprint.korlog.domain.model.DrivingSession
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,27 +40,38 @@ class FirestoreRepository @Inject constructor(
         sessionsCollection(uid).document(sessionId.toString()).delete().await()
     }
 
-    suspend fun fetchAllSessions(): List<se.w3footprint.korlog.data.local.entity.SessionEntity> {
+    suspend fun fetchAllSessions(): List<SessionEntity> {
         val uid = auth.currentUser?.uid ?: return emptyList()
         val snapshot = sessionsCollection(uid).get().await()
-        return snapshot.documents.mapNotNull { doc ->
-            try {
-                se.w3footprint.korlog.data.local.entity.SessionEntity(
-                    id = doc.id.toLong(),
-                    userId = uid,
-                    startTime = doc.getLong("startTime") ?: 0L,
-                    endTime = doc.getLong("endTime") ?: 0L,
-                    durationMillis = doc.getLong("durationMillis") ?: 0L,
-                    breakDurationMillis = doc.getLong("breakDurationMillis") ?: 0L,
-                    earningsSek = doc.getDouble("earningsSek") ?: 0.0,
-                    distanceKm = doc.getDouble("distanceKm") ?: 0.0,
-                    platform = doc.getString("platform") ?: "OTHER",
-                    notes = doc.getString("notes") ?: "",
-                    date = doc.getLong("date") ?: 0L
-                )
-            } catch (e: Exception) {
-                null
-            }
+        return snapshot.documents.mapNotNull { doc -> doc.toEntity(uid) }
+    }
+
+    fun observeSessions(): Flow<List<SessionEntity>> = callbackFlow {
+        val uid = auth.currentUser?.uid ?: run { close(); return@callbackFlow }
+        val listener = sessionsCollection(uid).addSnapshotListener { snapshot, error ->
+            if (error != null || snapshot == null) return@addSnapshotListener
+            trySend(snapshot.documents.mapNotNull { doc -> doc.toEntity(uid) })
+        }
+        awaitClose { listener.remove() }
+    }
+
+    private fun com.google.firebase.firestore.DocumentSnapshot.toEntity(uid: String): SessionEntity? {
+        return try {
+            SessionEntity(
+                id = id.toLong(),
+                userId = uid,
+                startTime = getLong("startTime") ?: 0L,
+                endTime = getLong("endTime") ?: 0L,
+                durationMillis = getLong("durationMillis") ?: 0L,
+                breakDurationMillis = getLong("breakDurationMillis") ?: 0L,
+                earningsSek = getDouble("earningsSek") ?: 0.0,
+                distanceKm = getDouble("distanceKm") ?: 0.0,
+                platform = getString("platform") ?: "OTHER",
+                notes = getString("notes") ?: "",
+                date = getLong("date") ?: 0L
+            )
+        } catch (e: Exception) {
+            null
         }
     }
 }
