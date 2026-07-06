@@ -101,10 +101,12 @@ class ActiveSessionManager @Inject constructor(
         val now = System.currentTimeMillis()
         _state.update { s ->
             val breakDuration = now - s.currentBreakStartMillis
+            val updatedBreakTotal = s.totalBreakMillis + breakDuration
             s.copy(
                 isOnBreak = false,
-                totalBreakMillis = s.totalBreakMillis + breakDuration,
-                currentBreakStartMillis = 0L
+                totalBreakMillis = updatedBreakTotal,
+                currentBreakStartMillis = 0L,
+                elapsedMillis = (now - s.startTime).coerceAtLeast(0L)
             )
         }
         persist()

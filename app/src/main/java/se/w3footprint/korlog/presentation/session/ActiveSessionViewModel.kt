@@ -10,9 +10,23 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import se.w3footprint.korlog.domain.model.Platform
 import se.w3footprint.korlog.domain.session.ActiveSessionManager
+import se.w3footprint.korlog.domain.session.ActiveSessionState
 import se.w3footprint.korlog.domain.usecase.session.SaveSessionUseCase
 import se.w3footprint.korlog.worker.BreakReminderScheduler
 import javax.inject.Inject
+
+private fun ActiveSessionState.toUiState() = ActiveSessionUiState(
+    isRunning = isRunning,
+    isOnBreak = isOnBreak,
+    startTime = startTime,
+    elapsedMillis = elapsedMillis,
+    totalBreakMillis = totalBreakMillis,
+    currentBreakStartMillis = currentBreakStartMillis,
+    earningsInput = earningsInput,
+    distanceInput = distanceInput,
+    selectedPlatform = selectedPlatform,
+    notes = notes
+)
 
 @HiltViewModel
 class ActiveSessionViewModel @Inject constructor(
@@ -23,7 +37,7 @@ class ActiveSessionViewModel @Inject constructor(
 
     val sessionState = sessionManager.state
 
-    private val _uiState = MutableStateFlow(ActiveSessionUiState())
+    private val _uiState = MutableStateFlow(sessionManager.state.value.toUiState())
     val uiState: StateFlow<ActiveSessionUiState> = _uiState.asStateFlow()
 
     init {
