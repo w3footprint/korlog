@@ -37,7 +37,6 @@ abstract class TaxiDatabase : RoomDatabase() {
         val MIGRATION_3_4 = object : Migration(3, 4) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE sessions ADD COLUMN syncId TEXT NOT NULL DEFAULT ''")
-                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_sessions_syncId ON sessions(syncId)")
             }
         }
     }

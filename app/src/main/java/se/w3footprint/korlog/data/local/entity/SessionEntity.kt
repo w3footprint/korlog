@@ -1,12 +1,11 @@
 package se.w3footprint.korlog.data.local.entity
 
 import androidx.room.Entity
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import se.w3footprint.korlog.domain.model.DrivingSession
 import se.w3footprint.korlog.domain.model.Platform
 
-@Entity(tableName = "sessions", indices = [Index(value = ["syncId"], unique = true)])
+@Entity(tableName = "sessions")
 data class SessionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
