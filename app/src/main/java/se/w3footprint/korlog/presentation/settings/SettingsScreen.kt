@@ -45,6 +45,9 @@ import androidx.compose.ui.Alignment
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,6 +63,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     var editingWeeklyLimit by remember { mutableStateOf(false) }
     var editingMonthlyLimit by remember { mutableStateOf(false) }
 
@@ -165,7 +169,10 @@ fun SettingsScreen(
             SettingsNavRow(
                 icon = Icons.Outlined.Policy,
                 label = stringResource(R.string.settings_privacy),
-                onClick = { }
+                onClick = {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://w3footprint.se/korlog/privacy"))
+                    context.startActivity(intent)
+                }
             )
         }
 
