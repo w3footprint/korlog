@@ -21,9 +21,7 @@ class FirestoreRepository @Inject constructor(
 
     suspend fun upsertSession(session: DrivingSession) {
         val uid = auth.currentUser?.uid ?: return
-        if (session.syncId.isEmpty()) return
         val data = mapOf(
-            "syncId" to session.syncId,
             "startTime" to session.startTime,
             "endTime" to session.endTime,
             "durationMillis" to session.durationMillis,
@@ -34,13 +32,12 @@ class FirestoreRepository @Inject constructor(
             "notes" to session.notes,
             "date" to session.date
         )
-        sessionsCollection(uid).document(session.syncId).set(data).await()
+        sessionsCollection(uid).document(session.id.toString()).set(data).await()
     }
 
-    suspend fun deleteSession(syncId: String) {
+    suspend fun deleteSession(sessionId: Long) {
         val uid = auth.currentUser?.uid ?: return
-        if (syncId.isEmpty()) return
-        sessionsCollection(uid).document(syncId).delete().await()
+        sessionsCollection(uid).document(sessionId.toString()).delete().await()
     }
 
     suspend fun fetchAllSessions(): List<SessionEntity> {
@@ -61,7 +58,7 @@ class FirestoreRepository @Inject constructor(
     private fun com.google.firebase.firestore.DocumentSnapshot.toEntity(uid: String): SessionEntity? {
         return try {
             SessionEntity(
-                syncId = id,
+                id = id.toLong(),
                 userId = uid,
                 startTime = getLong("startTime") ?: 0L,
                 endTime = getLong("endTime") ?: 0L,

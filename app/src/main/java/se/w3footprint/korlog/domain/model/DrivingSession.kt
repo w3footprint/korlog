@@ -2,7 +2,6 @@ package se.w3footprint.korlog.domain.model
 
 data class DrivingSession(
     val id: Long = 0,
-    val syncId: String = "",
     val startTime: Long,
     val endTime: Long,
     val durationMillis: Long,

@@ -15,7 +15,6 @@ import se.w3footprint.korlog.data.local.entity.toEntity
 import se.w3footprint.korlog.data.remote.firestore.FirestoreRepository
 import se.w3footprint.korlog.domain.model.DrivingSession
 import se.w3footprint.korlog.domain.repository.SessionRepository
-import java.util.UUID
 import javax.inject.Inject
 
 class SessionRepositoryImpl @Inject constructor(
@@ -44,9 +43,8 @@ class SessionRepositoryImpl @Inject constructor(
 
     override suspend fun insertSession(session: DrivingSession): Long {
         val currentUid = uid
-        val withSyncId = session.copy(syncId = UUID.randomUUID().toString())
-        val id = sessionDao.insertSession(withSyncId.toEntity(currentUid))
-        scope.launch { firestoreRepository.upsertSession(withSyncId.copy(id = id)) }
+        val id = sessionDao.insertSession(session.toEntity(currentUid))
+        scope.launch { firestoreRepository.upsertSession(session.copy(id = id)) }
         return id
     }
 
@@ -57,7 +55,7 @@ class SessionRepositoryImpl @Inject constructor(
 
     override suspend fun deleteSession(session: DrivingSession) {
         sessionDao.deleteSession(session.toEntity(uid))
-        scope.launch { firestoreRepository.deleteSession(session.syncId) }
+        scope.launch { firestoreRepository.deleteSession(session.id) }
     }
 
     override suspend fun getSessionById(id: Long): DrivingSession? =
@@ -69,17 +67,9 @@ class SessionRepositoryImpl @Inject constructor(
         sessionDao.claimOrphanedSessions(currentUid)
         try {
             val local = sessionDao.getAllSessionsOnce(currentUid)
-            local.filter { it.syncId.isNotEmpty() }
-                .forEach { firestoreRepository.upsertSession(it.toDomain()) }
+            local.forEach { firestoreRepository.upsertSession(it.toDomain()) }
             val cloud = firestoreRepository.fetchAllSessions()
-            cloud.forEach { entity ->
-                val existing = sessionDao.findBySyncId(entity.syncId)
-                if (existing == null) {
-                    sessionDao.insertSession(entity)
-                } else {
-                    sessionDao.updateSession(entity.copy(id = existing.id))
-                }
-            }
+            cloud.forEach { sessionDao.insertSession(it) }
         } catch (_: Exception) {}
         startRealtimeSync()
     }
@@ -92,19 +82,12 @@ class SessionRepositoryImpl @Inject constructor(
     private fun startRealtimeSync() {
         realtimeSyncJob?.cancel()
         realtimeSyncJob = scope.launch {
-            firestoreRepository.observeSessions().collect { cloudSessions ->
-                val cloudSyncIds = cloudSessions.map { it.syncId }.toSet()
-                cloudSessions.forEach { entity ->
-                    val existing = sessionDao.findBySyncId(entity.syncId)
-                    if (existing == null) {
-                        sessionDao.insertSession(entity)
-                    } else {
-                        sessionDao.updateSession(entity.copy(id = existing.id))
-                    }
-                }
-                val local = sessionDao.getAllSessionsOnce(uid)
-                local.filter { it.syncId.isNotEmpty() && it.syncId !in cloudSyncIds }
-                    .forEach { sessionDao.deleteSessionBySyncId(it.syncId) }
+            firestoreRepository.observeSessions().collect { sessions ->
+                sessions.forEach { sessionDao.insertSession(it) }
+                val cloudIds = sessions.map { it.id }.toSet()
+                val localIds = sessionDao.getAllSessionsOnce(uid).map { it.id }.toSet()
+                val deletedIds = localIds - cloudIds
+                deletedIds.forEach { sessionDao.deleteSessionById(it) }
             }
         }
     }

@@ -23,7 +23,7 @@ object DatabaseModule {
             TaxiDatabase::class.java,
             TaxiDatabase.DATABASE_NAME
         )
-            .addMigrations(TaxiDatabase.MIGRATION_1_2, TaxiDatabase.MIGRATION_2_3, TaxiDatabase.MIGRATION_3_4)
+            .addMigrations(TaxiDatabase.MIGRATION_1_2, TaxiDatabase.MIGRATION_2_3)
             .build()
     }
 
