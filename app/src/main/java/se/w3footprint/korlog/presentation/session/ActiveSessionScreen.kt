@@ -46,6 +46,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -126,14 +129,22 @@ fun ActiveSessionScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Main timer
+        var timerFontSize by remember { mutableStateOf(72.sp) }
         Text(
             text = uiState.formattedDrivingTime,
-            fontSize = 72.sp,
+            fontSize = timerFontSize,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Monospace,
             color = if (uiState.isOnBreak) MaterialTheme.colorScheme.onSurfaceVariant
                     else MaterialTheme.colorScheme.onBackground,
-            letterSpacing = 2.sp
+            letterSpacing = 2.sp,
+            maxLines = 1,
+            softWrap = false,
+            onTextLayout = { result ->
+                if (result.hasVisualOverflow && timerFontSize > 36.sp) {
+                    timerFontSize *= 0.9f
+                }
+            }
         )
 
         // Break time badge
