@@ -113,7 +113,7 @@
     <string name="about_legal">Organisation</string>
     <string name="about_legal_value">W3Footprint enskild firma</string>
     <string name="about_contact">Kontakt</string>
-    <string name="about_legal_note">KörLog följer vägarbetstidslagen (2005:395). Gränserna som visas är informativa — kontrollera alltid officiella källor.</string>
+    <string name="about_legal_note">Standardmålen är en utgångspunkt, inte ett regelverk. Justera dem i Inställningar så att de passar hur du jobbar.</string>
 
     <!-- Auth -->
     <string name="auth_login">Logga in</string>
