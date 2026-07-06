@@ -10,7 +10,7 @@ Taxi drivers in Sweden juggle multiple platforms — Uber, Bolt, Cabonline and o
 
 KörLog puts the driver in control. Start a session when you begin driving, stop it when you're done, log your earnings and distance. The app handles the rest — weekly and monthly summaries, hour tracking with customisable personal goals, mileage logs for tax deductions, and earnings breakdowns by platform.
 
-No surveillance tone. No red alerts for normal behaviour. Just clear, honest information that works for the driver.
+No red alerts for doing your job. Just clear, honest information that works for the driver.
 
 ## Features
 
