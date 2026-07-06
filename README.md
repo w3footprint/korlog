@@ -62,14 +62,7 @@ app/src/main/java/se/w3footprint/korlog/
 
 ## Hours reference
 
-KörLog's default hour targets are based on Swedish working time regulations for taxi drivers under **Vägarbetstidslagen (2005:395)**, implementing EU Directive 2002/15/EC:
-
-- 48h/week average (measured over 4 months)
-- 60h single-week maximum
-- 11h minimum daily rest
-- Mandatory break after 6 hours
-
-These are shown as informational guides. Drivers can adjust their personal targets in Settings.
+KörLog shows your weekly and monthly hours against default targets of 48h (average) and 60h (single week) — the standard reference points for Swedish taxi drivers. You can adjust these in Settings to match your own situation.
 
 ## License
 
