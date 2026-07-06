@@ -133,6 +133,14 @@ class ActiveSessionManager @Inject constructor(
         persist()
     }
 
+    fun freezeForStop() {
+        timerJob?.cancel()
+    }
+
+    fun unfreezeAfterDismiss() {
+        if (_state.value.isRunning && !_state.value.isOnBreak) startTicking()
+    }
+
     fun stopAndClear(): ActiveSessionState {
         timerJob?.cancel()
         val final = _state.value

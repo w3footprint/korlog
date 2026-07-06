@@ -15,7 +15,8 @@ data class ActiveSessionUiState(
     val notes: String = "",
     val isSaving: Boolean = false,
     val savedSessionId: Long? = null,
-    val showStopConfirm: Boolean = false
+    val showStopConfirm: Boolean = false,
+    val stoppedAtMillis: Long = 0L
 ) {
     val earningsSek: Double get() = earningsInput.replace(",", ".").toDoubleOrNull() ?: 0.0
     val distanceKm: Double get() = distanceInput.replace(",", ".").toDoubleOrNull() ?: 0.0

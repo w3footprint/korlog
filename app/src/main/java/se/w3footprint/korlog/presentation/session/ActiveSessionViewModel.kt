@@ -91,21 +91,29 @@ class ActiveSessionViewModel @Inject constructor(
     fun onPlatformSelected(platform: Platform) = sessionManager.updatePlatform(platform)
     fun onNotesChanged(value: String) = sessionManager.updateNotes(value)
 
-    fun onStopRequested() = _uiState.update { it.copy(showStopConfirm = true) }
-    fun onStopConfirmDismissed() = _uiState.update { it.copy(showStopConfirm = false) }
+    fun onStopRequested() {
+        val stoppedAt = System.currentTimeMillis()
+        sessionManager.freezeForStop()
+        _uiState.update { it.copy(showStopConfirm = true, stoppedAtMillis = stoppedAt) }
+    }
+
+    fun onStopConfirmDismissed() {
+        sessionManager.unfreezeAfterDismiss()
+        _uiState.update { it.copy(showStopConfirm = false, stoppedAtMillis = 0L) }
+    }
 
     fun confirmStop() {
         breakReminderScheduler.cancel()
         val ui = _uiState.value
         _uiState.update { it.copy(showStopConfirm = false, isSaving = true) }
-        val now = System.currentTimeMillis()
+        val endTime = ui.stoppedAtMillis
         val s = sessionManager.stopAndClear()
-        val totalBreak = if (s.isOnBreak) s.totalBreakMillis + (now - s.currentBreakStartMillis)
+        val totalBreak = if (s.isOnBreak) s.totalBreakMillis + (endTime - s.currentBreakStartMillis)
                          else s.totalBreakMillis
         viewModelScope.launch {
             val id = saveSession(
                 startTime = s.startTime,
-                endTime = now,
+                endTime = endTime,
                 breakDurationMillis = totalBreak,
                 earningsSek = ui.earningsSek,
                 distanceKm = ui.distanceKm,
