@@ -32,9 +32,10 @@ data class ActiveSessionState(
 ) {
     val drivingMillis: Long get() = elapsedMillis
     val formattedElapsed: String get() {
-        val h = elapsedMillis / 3_600_000
-        val m = (elapsedMillis % 3_600_000) / 60_000
-        val s = (elapsedMillis % 60_000) / 1_000
+        val driving = (elapsedMillis - totalBreakMillis).coerceAtLeast(0L)
+        val h = driving / 3_600_000
+        val m = (driving % 3_600_000) / 60_000
+        val s = (driving % 60_000) / 1_000
         return "%02d:%02d:%02d".format(h, m, s)
     }
 }
@@ -56,12 +57,8 @@ class ActiveSessionManager @Inject constructor(
                 val platform = runCatching { Platform.valueOf(persisted.platform) }
                     .getOrDefault(Platform.OTHER)
                 val now = System.currentTimeMillis()
-                val elapsed = if (persisted.isOnBreak) {
-                    (now - persisted.startTime - persisted.totalBreakMillis
-                            - (now - persisted.currentBreakStartMillis)).coerceAtLeast(0L)
-                } else {
-                    (now - persisted.startTime - persisted.totalBreakMillis).coerceAtLeast(0L)
-                }
+                // Wall-clock elapsed; UiState subtracts totalBreakMillis to get driving time
+                val elapsed = (now - persisted.startTime).coerceAtLeast(0L)
                 _state.update {
                     it.copy(
                         isRunning = true,
@@ -150,7 +147,8 @@ class ActiveSessionManager @Inject constructor(
                 val s = _state.value
                 if (!s.isRunning || s.isOnBreak) break
                 val now = System.currentTimeMillis()
-                val elapsed = (now - s.startTime - s.totalBreakMillis).coerceAtLeast(0L)
+                // Store raw wall-clock elapsed; UiState subtracts totalBreakMillis to get driving time
+                val elapsed = (now - s.startTime).coerceAtLeast(0L)
                 _state.update { it.copy(elapsedMillis = elapsed) }
             }
         }
