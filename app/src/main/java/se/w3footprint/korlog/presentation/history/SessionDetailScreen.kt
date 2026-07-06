@@ -180,6 +180,8 @@ private fun SessionDetailContent(session: DrivingSession, modifier: Modifier = M
     val timeFormatter = SimpleDateFormat("HH:mm", Locale.getDefault())
     val durationHours = (session.drivingDurationMillis / 3_600_000).toInt()
     val durationMinutes = ((session.drivingDurationMillis % 3_600_000) / 60_000).toInt()
+    val breakHours = (session.breakDurationMillis / 3_600_000).toInt()
+    val breakMinutes = ((session.breakDurationMillis % 3_600_000) / 60_000).toInt()
     val hourlyRate = if (session.drivingDurationMillis > 0)
         session.earningsSek / (session.drivingDurationMillis / 3_600_000.0) else 0.0
 
@@ -218,6 +220,15 @@ private fun SessionDetailContent(session: DrivingSession, modifier: Modifier = M
                     value = if (durationHours > 0) "$durationHours h $durationMinutes min"
                     else "$durationMinutes min"
                 )
+                if (session.breakDurationMillis > 0) {
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant)
+                    DetailRow(
+                        label = stringResource(R.string.session_break_duration),
+                        value = if (breakHours > 0) "$breakHours h $breakMinutes min"
+                        else "$breakMinutes min"
+                    )
+                }
                 HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp),
                     color = MaterialTheme.colorScheme.surfaceVariant)
                 DetailRow(
