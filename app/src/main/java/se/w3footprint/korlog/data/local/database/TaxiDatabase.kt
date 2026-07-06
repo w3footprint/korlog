@@ -9,7 +9,7 @@ import se.w3footprint.korlog.data.local.entity.SessionEntity
 
 @Database(
     entities = [SessionEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class TaxiDatabase : RoomDatabase() {
@@ -22,6 +22,14 @@ abstract class TaxiDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
                     "ALTER TABLE sessions ADD COLUMN breakDurationMillis INTEGER NOT NULL DEFAULT 0"
+                )
+            }
+        }
+
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "ALTER TABLE sessions ADD COLUMN userId TEXT NOT NULL DEFAULT ''"
                 )
             }
         }

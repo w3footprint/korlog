@@ -1,9 +1,11 @@
 package se.w3footprint.korlog.data.repository
 
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import se.w3footprint.korlog.data.local.dao.SessionDao
@@ -16,39 +18,46 @@ import javax.inject.Inject
 
 class SessionRepositoryImpl @Inject constructor(
     private val sessionDao: SessionDao,
-    private val firestoreRepository: FirestoreRepository
+    private val firestoreRepository: FirestoreRepository,
+    private val auth: FirebaseAuth
 ) : SessionRepository {
 
     private val syncScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    override fun getAllSessions(): Flow<List<DrivingSession>> =
-        sessionDao.getAllSessions().map { list -> list.map { it.toDomain() } }
+    private val uid get() = auth.currentUser?.uid ?: ""
 
-    override fun getSessionsByDateRange(
-        startMillis: Long,
-        endMillis: Long
-    ): Flow<List<DrivingSession>> =
-        sessionDao.getSessionsByDateRange(startMillis, endMillis)
+    override fun getAllSessions(): Flow<List<DrivingSession>> {
+        val currentUid = uid
+        if (currentUid.isEmpty()) return emptyFlow()
+        return sessionDao.getAllSessions(currentUid).map { list -> list.map { it.toDomain() } }
+    }
+
+    override fun getSessionsByDateRange(startMillis: Long, endMillis: Long): Flow<List<DrivingSession>> {
+        val currentUid = uid
+        if (currentUid.isEmpty()) return emptyFlow()
+        return sessionDao.getSessionsByDateRange(currentUid, startMillis, endMillis)
             .map { list -> list.map { it.toDomain() } }
+    }
 
     override suspend fun insertSession(session: DrivingSession): Long {
-        val id = sessionDao.insertSession(session.toEntity())
+        val currentUid = uid
+        val id = sessionDao.insertSession(session.toEntity(currentUid))
         syncScope.launch { firestoreRepository.upsertSession(session.copy(id = id)) }
         return id
     }
 
     override suspend fun updateSession(session: DrivingSession) {
-        sessionDao.updateSession(session.toEntity())
+        sessionDao.updateSession(session.toEntity(uid))
         syncScope.launch { firestoreRepository.upsertSession(session) }
     }
 
     override suspend fun deleteSession(session: DrivingSession) {
-        sessionDao.deleteSession(session.toEntity())
+        sessionDao.deleteSession(session.toEntity(uid))
         syncScope.launch { firestoreRepository.deleteSession(session.id) }
     }
 
     override suspend fun getSessionById(id: Long): DrivingSession? =
-        sessionDao.getSessionById(id)?.toDomain()
+        sessionDao.getSessionById(id, uid)?.toDomain()
 
     override suspend fun syncFromCloud() {
         val sessions = firestoreRepository.fetchAllSessions()

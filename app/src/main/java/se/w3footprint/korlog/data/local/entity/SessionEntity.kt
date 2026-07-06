@@ -9,6 +9,7 @@ import se.w3footprint.korlog.domain.model.Platform
 data class SessionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val userId: String = "",
     val startTime: Long,
     val endTime: Long,
     val durationMillis: Long,
@@ -33,8 +34,9 @@ fun SessionEntity.toDomain() = DrivingSession(
     date = date
 )
 
-fun DrivingSession.toEntity() = SessionEntity(
+fun DrivingSession.toEntity(userId: String = "") = SessionEntity(
     id = id,
+    userId = userId,
     startTime = startTime,
     endTime = endTime,
     durationMillis = durationMillis,

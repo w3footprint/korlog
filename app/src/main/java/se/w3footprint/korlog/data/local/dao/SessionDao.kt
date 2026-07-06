@@ -7,14 +7,14 @@ import se.w3footprint.korlog.data.local.entity.SessionEntity
 @Dao
 interface SessionDao {
 
-    @Query("SELECT * FROM sessions ORDER BY date DESC")
-    fun getAllSessions(): Flow<List<SessionEntity>>
+    @Query("SELECT * FROM sessions WHERE userId = :userId ORDER BY date DESC")
+    fun getAllSessions(userId: String): Flow<List<SessionEntity>>
 
-    @Query("SELECT * FROM sessions WHERE date BETWEEN :startMillis AND :endMillis ORDER BY date DESC")
-    fun getSessionsByDateRange(startMillis: Long, endMillis: Long): Flow<List<SessionEntity>>
+    @Query("SELECT * FROM sessions WHERE userId = :userId AND date BETWEEN :startMillis AND :endMillis ORDER BY date DESC")
+    fun getSessionsByDateRange(userId: String, startMillis: Long, endMillis: Long): Flow<List<SessionEntity>>
 
-    @Query("SELECT * FROM sessions WHERE id = :id")
-    suspend fun getSessionById(id: Long): SessionEntity?
+    @Query("SELECT * FROM sessions WHERE id = :id AND userId = :userId")
+    suspend fun getSessionById(id: Long, userId: String): SessionEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSession(session: SessionEntity): Long

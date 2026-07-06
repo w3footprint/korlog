@@ -3,8 +3,6 @@ package se.w3footprint.korlog.data.auth
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.tasks.await
-import se.w3footprint.korlog.data.local.database.TaxiDatabase
-import se.w3footprint.korlog.data.local.store.ActiveSessionStore
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,9 +13,7 @@ sealed class AuthResult {
 
 @Singleton
 class AuthRepository @Inject constructor(
-    private val auth: FirebaseAuth,
-    private val database: TaxiDatabase,
-    private val sessionStore: ActiveSessionStore
+    private val auth: FirebaseAuth
 ) {
     val currentUser: FirebaseUser? get() = auth.currentUser
     val isLoggedIn: Boolean get() = auth.currentUser != null
@@ -49,9 +45,7 @@ class AuthRepository @Inject constructor(
         }
     }
 
-    suspend fun signOut() {
-        database.clearAllTables()
-        sessionStore.clear()
+    fun signOut() {
         auth.signOut()
     }
 }
