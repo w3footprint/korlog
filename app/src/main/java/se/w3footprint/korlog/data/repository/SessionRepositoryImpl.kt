@@ -60,7 +60,12 @@ class SessionRepositoryImpl @Inject constructor(
         sessionDao.getSessionById(id, uid)?.toDomain()
 
     override suspend fun syncFromCloud() {
-        val sessions = firestoreRepository.fetchAllSessions()
-        sessions.forEach { sessionDao.insertSession(it) }
+        val currentUid = uid
+        if (currentUid.isEmpty()) return
+        sessionDao.claimOrphanedSessions(currentUid)
+        try {
+            val sessions = firestoreRepository.fetchAllSessions()
+            sessions.forEach { sessionDao.insertSession(it) }
+        } catch (_: Exception) {}
     }
 }

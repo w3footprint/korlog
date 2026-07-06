@@ -24,4 +24,7 @@ interface SessionDao {
 
     @Delete
     suspend fun deleteSession(session: SessionEntity)
+
+    @Query("UPDATE sessions SET userId = :userId WHERE userId = ''")
+    suspend fun claimOrphanedSessions(userId: String)
 }
