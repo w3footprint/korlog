@@ -8,8 +8,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import se.w3footprint.korlog.data.local.store.ActiveSessionStore
+import se.w3footprint.korlog.data.local.store.PersistedSessionState
 import se.w3footprint.korlog.domain.model.Platform
 import se.w3footprint.korlog.domain.usecase.session.SaveSessionUseCase
 import se.w3footprint.korlog.worker.BreakReminderScheduler
@@ -18,7 +21,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ActiveSessionViewModel @Inject constructor(
     private val saveSession: SaveSessionUseCase,
-    private val breakReminderScheduler: BreakReminderScheduler
+    private val breakReminderScheduler: BreakReminderScheduler,
+    private val sessionStore: ActiveSessionStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ActiveSessionUiState())
@@ -26,9 +30,43 @@ class ActiveSessionViewModel @Inject constructor(
 
     private var timerJob: Job? = null
 
+    init {
+        viewModelScope.launch {
+            val persisted = sessionStore.state.first()
+            if (persisted.isRunning) {
+                val platform = runCatching { Platform.valueOf(persisted.platform) }
+                    .getOrDefault(Platform.OTHER)
+                val now = System.currentTimeMillis()
+                val elapsed = if (persisted.isOnBreak) {
+                    persisted.startTime.let { now - it - persisted.totalBreakMillis - (now - persisted.currentBreakStartMillis) }
+                        .coerceAtLeast(0L)
+                } else {
+                    (now - persisted.startTime - persisted.totalBreakMillis).coerceAtLeast(0L)
+                }
+                _uiState.update {
+                    it.copy(
+                        isRunning = true,
+                        isOnBreak = persisted.isOnBreak,
+                        startTime = persisted.startTime,
+                        elapsedMillis = elapsed,
+                        totalBreakMillis = persisted.totalBreakMillis,
+                        currentBreakStartMillis = persisted.currentBreakStartMillis,
+                        earningsInput = persisted.earningsInput,
+                        distanceInput = persisted.distanceInput,
+                        selectedPlatform = platform,
+                        notes = persisted.notes
+                    )
+                }
+                if (!persisted.isOnBreak) startTicking()
+            }
+        }
+    }
+
     fun startSession() {
+        if (_uiState.value.isRunning) return
         val now = System.currentTimeMillis()
         _uiState.update { it.copy(isRunning = true, startTime = now, elapsedMillis = 0L) }
+        persist()
         startTicking()
         breakReminderScheduler.schedule(driveTimeHours = 6L)
     }
@@ -36,7 +74,7 @@ class ActiveSessionViewModel @Inject constructor(
     fun takeBreak() {
         timerJob?.cancel()
         _uiState.update { it.copy(isOnBreak = true, currentBreakStartMillis = System.currentTimeMillis()) }
-        // Cancel the reminder — driver is already taking a break
+        persist()
         breakReminderScheduler.cancel()
     }
 
@@ -50,8 +88,8 @@ class ActiveSessionViewModel @Inject constructor(
                 currentBreakStartMillis = 0L
             )
         }
+        persist()
         startTicking()
-        // Re-schedule reminder for 6 more hours from now
         breakReminderScheduler.schedule(driveTimeHours = 6L)
     }
 
@@ -60,9 +98,10 @@ class ActiveSessionViewModel @Inject constructor(
         timerJob = viewModelScope.launch {
             while (true) {
                 delay(1_000L)
-                _uiState.update { state ->
-                    state.copy(elapsedMillis = System.currentTimeMillis() - state.startTime)
-                }
+                val state = _uiState.value
+                val now = System.currentTimeMillis()
+                val elapsed = (now - state.startTime - state.totalBreakMillis).coerceAtLeast(0L)
+                _uiState.update { it.copy(elapsedMillis = elapsed) }
             }
         }
     }
@@ -70,21 +109,25 @@ class ActiveSessionViewModel @Inject constructor(
     fun onEarningsChanged(value: String) {
         if (value.isEmpty() || value.matches(Regex("^\\d{0,6}([.,]\\d{0,2})?\$"))) {
             _uiState.update { it.copy(earningsInput = value) }
+            persist()
         }
     }
 
     fun onDistanceChanged(value: String) {
         if (value.isEmpty() || value.matches(Regex("^\\d{0,5}([.,]\\d{0,1})?\$"))) {
             _uiState.update { it.copy(distanceInput = value) }
+            persist()
         }
     }
 
     fun onPlatformSelected(platform: Platform) {
         _uiState.update { it.copy(selectedPlatform = platform) }
+        persist()
     }
 
     fun onNotesChanged(value: String) {
         _uiState.update { it.copy(notes = value) }
+        persist()
     }
 
     fun onStopRequested() {
@@ -97,7 +140,6 @@ class ActiveSessionViewModel @Inject constructor(
 
     fun confirmStop() {
         breakReminderScheduler.cancel()
-        // If stopping during a break, close the break first
         val now = System.currentTimeMillis()
         _uiState.update { state ->
             val extraBreak = if (state.isOnBreak) now - state.currentBreakStartMillis else 0L
@@ -111,11 +153,11 @@ class ActiveSessionViewModel @Inject constructor(
         timerJob?.cancel()
 
         val state = _uiState.value
-        val endTime = now
         viewModelScope.launch {
+            sessionStore.clear()
             val id = saveSession(
                 startTime = state.startTime,
-                endTime = endTime,
+                endTime = now,
                 breakDurationMillis = state.totalBreakMillis,
                 earningsSek = state.earningsSek,
                 distanceKm = state.distanceKm,
@@ -123,6 +165,25 @@ class ActiveSessionViewModel @Inject constructor(
                 notes = state.notes
             )
             _uiState.update { it.copy(isSaving = false, savedSessionId = id) }
+        }
+    }
+
+    private fun persist() {
+        viewModelScope.launch {
+            val s = _uiState.value
+            sessionStore.save(
+                PersistedSessionState(
+                    isRunning = s.isRunning,
+                    isOnBreak = s.isOnBreak,
+                    startTime = s.startTime,
+                    totalBreakMillis = s.totalBreakMillis,
+                    currentBreakStartMillis = s.currentBreakStartMillis,
+                    earningsInput = s.earningsInput,
+                    distanceInput = s.distanceInput,
+                    platform = s.selectedPlatform.name,
+                    notes = s.notes
+                )
+            )
         }
     }
 

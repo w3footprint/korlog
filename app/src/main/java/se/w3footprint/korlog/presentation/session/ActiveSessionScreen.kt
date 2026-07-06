@@ -73,7 +73,8 @@ fun ActiveSessionScreen(
         ActivityResultContracts.RequestPermission()
     ) { /* permission result handled silently — notifications are non-critical */ }
 
-    LaunchedEffect(uiState.isRunning) {
+    LaunchedEffect(Unit) {
+        // Only start a new session if none is already running (restored from store)
         if (!uiState.isRunning) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
