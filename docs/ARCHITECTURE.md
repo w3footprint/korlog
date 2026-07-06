@@ -41,6 +41,8 @@ The app is split into three independent layers. Each layer only communicates wit
 se.w3footprint.korlog/
 │
 ├── data/
+│   ├── auth/
+│   │   └── AuthRepository.kt
 │   ├── local/
 │   │   ├── dao/
 │   │   │   └── SessionDao.kt
@@ -50,7 +52,7 @@ se.w3footprint.korlog/
 │   │       └── SessionEntity.kt
 │   ├── remote/
 │   │   └── firestore/
-│   │       └── FirestoreSessionSource.kt
+│   │       └── FirestoreRepository.kt
 │   └── repository/
 │       └── SessionRepositoryImpl.kt
 │
@@ -76,7 +78,8 @@ se.w3footprint.korlog/
 │   ├── auth/
 │   │   ├── AuthViewModel.kt
 │   │   ├── LoginScreen.kt
-│   │   └── RegisterScreen.kt
+│   │   ├── RegisterScreen.kt
+│   │   └── ForgotPasswordScreen.kt
 │   ├── dashboard/
 │   │   ├── DashboardViewModel.kt
 │   │   ├── DashboardScreen.kt
@@ -105,7 +108,6 @@ se.w3footprint.korlog/
 │   │   └── Screen.kt
 │   └── common/
 │       ├── components/
-│       │   ├── TimerDisplay.kt
 │       │   ├── StatCard.kt
 │       │   ├── ComplianceCard.kt
 │       │   ├── SessionCard.kt
@@ -126,31 +128,35 @@ se.w3footprint.korlog/
 
 ## 3. Database Schema
 
+**Room database name:** `taxi_database`  
+**Current version:** 4
+
 ### Table: `sessions`
 
 | Column | Type | Constraints | Description |
 |---|---|---|---|
 | `id` | INTEGER | PRIMARY KEY AUTOINCREMENT | Unique session ID |
-| `start_time` | INTEGER | NOT NULL | Unix timestamp ms — session start |
-| `end_time` | INTEGER | NOT NULL | Unix timestamp ms — session end |
-| `duration_millis` | INTEGER | NOT NULL | endTime - startTime in ms |
-| `earnings_sek` | REAL | NOT NULL, DEFAULT 0.0 | Earnings entered by driver |
-| `distance_km` | REAL | NOT NULL, DEFAULT 0.0 | Distance driven (for körjournal) |
+| `syncId` | TEXT | NOT NULL, DEFAULT '' | Reserved for future cloud deduplication |
+| `userId` | TEXT | NOT NULL, DEFAULT '' | Firebase UID — scopes all queries per user |
+| `startTime` | INTEGER | NOT NULL | Unix timestamp ms — session start |
+| `endTime` | INTEGER | NOT NULL | Unix timestamp ms — session end |
+| `durationMillis` | INTEGER | NOT NULL | Driving time in ms (excludes break time) |
+| `breakDurationMillis` | INTEGER | NOT NULL, DEFAULT 0 | Total break time in ms |
+| `earningsSek` | REAL | NOT NULL, DEFAULT 0.0 | Earnings entered by driver |
+| `distanceKm` | REAL | NOT NULL, DEFAULT 0.0 | Distance driven (for körjournal) |
 | `platform` | TEXT | NOT NULL, DEFAULT 'OTHER' | UBER/BOLT/CABONLINE/TAXIKURIR/SVERIGETAXI/OTHER |
-| `notes` | TEXT | DEFAULT '' | Optional driver notes |
+| `notes` | TEXT | NOT NULL, DEFAULT '' | Optional driver notes |
 | `date` | INTEGER | NOT NULL | Unix timestamp ms — day of session |
-| `synced_to_cloud` | INTEGER | NOT NULL, DEFAULT 0 | 0 = local only, 1 = synced |
-| `remote_id` | TEXT | NULLABLE | Firestore document ID |
 
-### Table: `active_session` (single-row state table)
+### Migration History
 
-| Column | Type | Constraints | Description |
-|---|---|---|---|
-| `id` | INTEGER | PRIMARY KEY DEFAULT 1 | Always row ID 1 |
-| `start_time` | INTEGER | NOT NULL | When the current session started |
-| `platform` | TEXT | NOT NULL | Platform selected for this session |
+| Migration | Change |
+|---|---|
+| v1 → v2 | Added `breakDurationMillis` column |
+| v2 → v3 | Added `userId` column |
+| v3 → v4 | Added `syncId` column |
 
-This table survives app kills — if the app crashes mid-session, the session is recovered on next launch.
+All migrations are additive (ALTER TABLE ADD COLUMN) — no data loss.
 
 ---
 
@@ -162,36 +168,59 @@ DashboardScreen
   → DashboardViewModel.startSession()
     → StartSessionUseCase(startTime, platform)
       → SessionRepository.saveActiveSession()
-        → ActiveSessionDao.insert()   ← persisted immediately
+        → ActiveSessionStore (in-memory + DataStore)
 ```
 
 ### Stopping a Session
 ```
 ActiveSessionScreen
-  → ActiveSessionViewModel.stopSession(earnings, distance, notes)
+  → ActiveSessionViewModel.confirmStop(earnings, distance, notes)
     → StopSessionUseCase(...)
-      → SessionRepository.finalizeSession()
-        → SessionDao.insert(session)        ← save to history
-        → ActiveSessionDao.clear()          ← clear active state
-        → FirestoreSessionSource.sync()     ← background cloud sync
+      → SessionRepository.insertSession(session)   ← tagged with userId
+        → SessionDao.insertSession()               ← Room (source of truth)
+        → FirestoreRepository.upsertSession()      ← mirrored to Firestore
 ```
 
 ### Observing Stats
 ```
 DashboardScreen observes DashboardViewModel.uiState (StateFlow)
   ← DashboardViewModel collects from GetWeeklyStatsUseCase()
-    ← GetWeeklyStatsUseCase collects from SessionRepository.getSessionsByDateRange()
-      ← SessionDao.getSessionsByDateRange() (Flow — auto-updates on DB change)
+    ← GetWeeklyStatsUseCase collects from SessionRepository.getAllSessions(userId)
+      ← SessionDao.getAllSessions(userId) (Flow — auto-updates on DB change)
 ```
 
 ---
 
-## 5. Offline-First Strategy
+## 5. Sync Strategy
 
-1. All writes go to Room first — never directly to Firestore
-2. A background sync worker (WorkManager) checks for unsynced sessions (`synced_to_cloud = 0`) and pushes them to Firestore
-3. On first login / app restore, Firestore data is pulled and merged into Room
-4. Conflict resolution: `start_time` is the unique key — duplicates are ignored
+KörLog uses an offline-first approach. Room is always the source of truth.
+
+### Login sync (bidirectional, one-time)
+On sign-in, `SessionRepositoryImpl.syncFromCloud()` runs:
+1. Push all local sessions (tagged with current `userId`) to Firestore
+2. Pull all sessions from Firestore and insert into Room
+
+### Real-time sync (ongoing)
+After login sync, a Firestore snapshot listener runs for the duration of the session:
+
+```kotlin
+fun observeSessions(): Flow<List<SessionEntity>> = callbackFlow {
+    val uid = auth.currentUser?.uid ?: run { close(); return@callbackFlow }
+    val listener = sessionsCollection(uid).addSnapshotListener { snapshot, error ->
+        if (error != null || snapshot == null) return@addSnapshotListener
+        trySend(snapshot.documents.mapNotNull { it.toEntity(uid) })
+    }
+    awaitClose { listener.remove() }
+}
+```
+
+The listener inserts new/updated sessions into Room and deletes sessions locally that no longer exist in Firestore. This keeps all devices in sync without polling.
+
+### Pull-to-refresh
+The history screen supports manual sync via `PullToRefreshBox`. This calls `syncFromCloud()` on demand.
+
+### User data isolation
+All Room queries are scoped by `userId`. All Firestore documents live under `users/{uid}/sessions/{id}`. Security rules enforce that `request.auth.uid == userId`.
 
 ---
 
@@ -201,7 +230,8 @@ DashboardScreen observes DashboardViewModel.uiState (StateFlow)
 NavHost
 ├── authGraph (startDestination = login)
 │   ├── login
-│   └── register
+│   ├── register
+│   └── forgotPassword
 └── mainGraph (startDestination = dashboard)
     ├── dashboard
     │   └── activeSession (full screen)
@@ -216,16 +246,15 @@ NavHost
 
 ### Bottom Navigation
 Shown on: `dashboard`, `history`, `stats`, `settings`  
-Hidden on: `login`, `register`, `activeSession`
+Hidden on: `login`, `register`, `forgotPassword`, `activeSession`
 
 ---
 
 ## 7. State Management
 
-Each screen has its own `UiState` sealed class or data class:
+Each screen has its own `UiState` data class:
 
 ```kotlin
-// Example: DashboardUiState
 data class DashboardUiState(
     val isLoading: Boolean = true,
     val isSessionActive: Boolean = false,
@@ -246,7 +275,7 @@ ViewModels expose `StateFlow<UiState>`. Composables collect with `collectAsState
 
 | Module | Provides |
 |---|---|
-| `DatabaseModule` | `TaxiDatabase`, `SessionDao`, `ActiveSessionDao` |
+| `DatabaseModule` | `TaxiDatabase`, `SessionDao` |
 | `RepositoryModule` | `SessionRepository` (bound to `SessionRepositoryImpl`) |
 | `FirebaseModule` | `FirebaseAuth`, `FirebaseFirestore` |
 
@@ -254,18 +283,20 @@ All ViewModels use `@HiltViewModel`. All use cases are plain classes injected vi
 
 ---
 
-## 9. Background Work (WorkManager)
+## 9. Background Work
 
 | Worker | Trigger | Action |
 |---|---|---|
-| `CloudSyncWorker` | Every 15 min (when connected) | Push unsynced sessions to Firestore |
 | `BreakReminderWorker` | Scheduled when session starts | Notify after 6h continuous driving |
+
+Cloud sync uses Firestore's real-time listener (not WorkManager). No background polling job is needed.
 
 ---
 
 ## 10. Security
 
 - Firebase Security Rules: users can only read/write their own documents (`request.auth.uid == userId`)
+- All Room queries include `userId` parameter — no cross-user data access
 - No raw SQL — all queries through Room DAOs
 - ProGuard/R8 enabled on release builds
 - No sensitive data logged in production (BuildConfig.DEBUG guard)
@@ -277,8 +308,8 @@ All ViewModels use `@HiltViewModel`. All use cases are plain classes injected vi
 
 | Layer | Tool | What is tested |
 |---|---|---|
-| Use Cases | JUnit 4 + MockK | Business logic, hour limit calculations, compliance rules |
-| Repository | JUnit 4 + Room in-memory | DAO queries, data mapping |
+| Repository | JUnit 4 + MockK | Data isolation per user, sync logic, delete guards |
+| Use Cases | JUnit 4 + MockK | Business logic, hour limit calculations |
 | ViewModel | JUnit 4 + Turbine | UiState transitions, coroutine flows |
 | UI | Compose UI Test | Critical user flows (start session, stop session) |
 

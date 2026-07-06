@@ -1,37 +1,41 @@
 # KörLog
 
-An Android app for Swedish taxi and rideshare drivers to track working hours, monitor earnings, and stay within legal driving time limits.
+**Your time, your earnings, your way.**
+
+A professional Android app for Swedish taxi and rideshare drivers to track working hours, log earnings, and stay on top of their week — on their own terms.
 
 ## What it does
 
-Taxi drivers in Sweden work across multiple platforms — Uber, Bolt, Cabonline and others — often without a clear picture of their total hours or income. Swedish law sets strict limits on driving time, and violations can cost a driver their license.
+Taxi drivers in Sweden juggle multiple platforms — Uber, Bolt, Cabonline and others — often without a clear picture of their total hours or income. Keeping that picture clear shouldn't require paperwork, spreadsheets, or guesswork.
 
-KörLog keeps all of that in one place. Start a session when you begin driving, stop it when you're done, log your earnings and distance. The app handles the rest — weekly and monthly summaries, legal hour tracking, mileage logs for tax deductions, and VAT calculations ready for Skatteverket.
+KörLog puts the driver in control. Start a session when you begin driving, stop it when you're done, log your earnings and distance. The app handles the rest — weekly and monthly summaries, hour tracking with customisable personal goals, mileage logs for tax deductions, and earnings breakdowns by platform.
 
-The app is built for the driver, not against them. No surveillance, no alarms for normal behavior. Just clear, honest information that helps drivers protect their license and understand their income.
+No surveillance tone. No red alerts for normal behaviour. Just clear, honest information that works for the driver.
 
 ## Features
 
-- Session timer with platform tagging (Uber, Bolt, Cabonline, etc.)
-- Weekly and monthly hours vs. Swedish legal limits (Vägarbetstidslagen 2005:395)
+- Session timer with break tracking and platform tagging (Uber, Bolt, Cabonline, etc.)
+- Weekly and monthly hours overview with adjustable personal targets
 - Break reminder after 6 hours of continuous driving
 - Earnings tracking per session and platform
-- Session history with filters
+- Edit sessions after the fact — fix a typo, adjust earnings, update notes
+- Session history with search and filters
+- Real-time cloud sync across devices (Firebase)
+- Full offline support — everything works without internet
+- Swedish and English language support
 - **Pro:** Körjournal (mileage log) at Skatteverket rates
 - **Pro:** Moms (6% VAT) tracker
 - **Pro:** PDF and CSV export for tax reporting
 - **Pro:** Fleet owner view
-- Cloud backup with Firebase, offline-first
-- Swedish and English language support
 
 ## Tech stack
 
 - Kotlin + Jetpack Compose
 - MVVM + Clean Architecture
-- Room (local database)
+- Room (local database, offline-first)
 - Hilt (dependency injection)
 - Navigation Compose
-- Firebase Auth + Firestore
+- Firebase Auth + Firestore (real-time sync)
 - WorkManager
 - Google Play Billing
 
@@ -56,14 +60,16 @@ app/src/main/java/se/w3footprint/korlog/
 - [Design Specification](docs/DESIGN_SPEC.md)
 - [Architecture](docs/ARCHITECTURE.md)
 
-## Legal context
+## Hours reference
 
-This app is designed around Swedish working time regulations for taxi drivers under **Vägarbetstidslagen (2005:395)**, implementing EU Directive 2002/15/EC:
+KörLog's default hour targets are based on Swedish working time regulations for taxi drivers under **Vägarbetstidslagen (2005:395)**, implementing EU Directive 2002/15/EC:
 
-- 48h/week average limit (measured over 4 months)
-- 60h single-week hard cap
+- 48h/week average (measured over 4 months)
+- 60h single-week maximum
 - 11h minimum daily rest
 - Mandatory break after 6 hours
+
+These are shown as informational guides. Drivers can adjust their personal targets in Settings.
 
 ## License
 

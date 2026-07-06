@@ -22,9 +22,9 @@ The app should feel like a trusted co-pilot — calm, clear, and always on the d
 |---|---|---|
 | Primary | #2563EB | Buttons, active states, links |
 | Primary Container | #EFF6FF | Chip backgrounds, subtle highlights |
-| Secondary | #10B981 | Positive states, earnings, "you're good" |
-| Warning | #F59E0B | Soft warnings (approaching limit) |
-| Error | #EF4444 | Hard limit exceeded only |
+| Secondary | #10B981 | Positive states, earnings, "all clear" |
+| Warning | #F59E0B | Soft nudges (approaching target) |
+| Error | #EF4444 | Stop button, destructive actions only |
 | Background | #0F172A | App background (dark) |
 | Surface | #1E293B | Cards, bottom sheets |
 | Surface Variant | #334155 | Input fields, dividers |
@@ -36,7 +36,7 @@ The app should feel like a trusted co-pilot — calm, clear, and always on the d
 
 | Style | Font | Size | Weight | Usage |
 |---|---|---|---|---|
-| Display Large | Inter | 57sp | 400 | Timer display |
+| Display Large | Inter | 57sp | 400 | Timer display (auto-shrinks on small screens) |
 | Headline Large | Inter | 32sp | 700 | Screen titles |
 | Headline Medium | Inter | 28sp | 600 | Section headers |
 | Title Large | Inter | 22sp | 600 | Card titles |
@@ -62,8 +62,8 @@ The app should feel like a trusted co-pilot — calm, clear, and always on the d
 | Component | Radius |
 |---|---|
 | Cards | 16dp |
-| Buttons | 12dp |
-| Chips | 8dp |
+| Buttons | 12–14dp |
+| Chips | 20dp (pill) |
 | Bottom sheet | 28dp top corners |
 | Input fields | 12dp |
 
@@ -74,9 +74,9 @@ The app should feel like a trusted co-pilot — calm, clear, and always on the d
 | Screen | Route | Auth Required |
 |---|---|---|
 | Splash | splash | No |
-| Onboarding | onboarding | No |
 | Login | auth/login | No |
 | Register | auth/register | No |
+| Forgot Password | auth/forgot | No |
 | Dashboard | dashboard | Yes |
 | Active Session | session/active | Yes |
 | Session Summary | session/summary/{id} | Yes |
@@ -95,7 +95,8 @@ The app should feel like a trusted co-pilot — calm, clear, and always on the d
 Root
 ├── Auth Graph
 │   ├── Login
-│   └── Register
+│   ├── Register
+│   └── Forgot Password
 └── Main Graph (Bottom Nav)
     ├── Dashboard
     │   └── Active Session (full screen overlay)
@@ -124,7 +125,7 @@ Root
 
 ```
 ┌─────────────────────────────────┐
-│  [≡]   KörLog    [👤]      │  ← TopBar
+│  [≡]   KörLog    [👤]           │  ← TopBar
 ├─────────────────────────────────┤
 │                                 │
 │  ┌─────────────────────────┐   │
@@ -143,9 +144,9 @@ Root
 │  └──────────┘  └──────────┘   │
 │                                 │
 │  ┌─────────────────────────┐   │
-│  │ Licenskydd              │   │  ← Compliance card
+│  │ Dina timmar             │   │  ← Hours card
 │  │ ████████░░░░  12.5/60h  │   │
-│  │ ✓ Du är redo att köra   │   │
+│  │ ✓ Klart — kör på        │   │
 │  └─────────────────────────┘   │
 │                                 │
 │  Senaste pass                   │  ← Recent sessions
@@ -161,33 +162,27 @@ Root
 
 ```
 ┌─────────────────────────────────┐
-│           KÖRT TID              │
+│           KÖRTID                │
 │                                 │
-│         02 : 34 : 17            │  ← Giant timer
+│         02 : 34 : 17            │  ← Giant timer (auto-shrinks)
 │                                 │
-│    ┌──────────────────────┐    │
-│    │  Plattform           │    │
-│    │  [Uber ▼]            │    │  ← Platform picker
-│    └──────────────────────┘    │
+│    [ ☕ Ta en paus ]            │  ← Break button
 │                                 │
-│    ┌──────────────────────┐    │
-│    │  Intäkter (SEK)      │    │
-│    │  [          ]        │    │  ← Earnings input
-│    └──────────────────────┘    │
+│    [ ■ Avsluta pass ]           │  ← Stop button (red)
 │                                 │
-│    ┌──────────────────────┐    │
-│    │  Körsträcka (mil)    │    │
-│    │  [          ]        │    │  ← Distance input
-│    └──────────────────────┘    │
+└─────────────────────────────────┘
+
+On stop → bottom sheet slides up:
+┌─────────────────────────────────┐
+│  Avsluta passet                 │
+│  02:34:17                       │
+├─────────────────────────────────┤
+│  Intäkter (SEK)  [        ]    │
+│  Körsträcka (km) [        ]    │
+│  Plattform: [Uber] [Bolt] ...  │
+│  Anteckningar    [        ]    │
 │                                 │
-│    ┌──────────────────────┐    │
-│    │  Anteckningar        │    │
-│    │  [                 ] │    │
-│    └──────────────────────┘    │
-│                                 │
-│                                 │
-│    [ AVSLUTA PASS ]             │  ← Stop button (red)
-│                                 │
+│  [ SPARA PASSET ]               │
 └─────────────────────────────────┘
 ```
 
@@ -219,13 +214,15 @@ Root
 │  Hem  │ Historik │ Stat │ Inst  │
 ```
 
+Pull-to-refresh supported — dragging down syncs from cloud.
+
 ### 5.4 Statistics Screen
 
 ```
 ┌─────────────────────────────────┐
 │  Statistik                      │
 ├─────────────────────────────────┤
-│  [Vecka] [Månad] [År]           │  ← Period tabs
+│  [Vecka] [Månad] [År]           │  ← Period tabs (smooth crossfade)
 │                                 │
 │  ┌─────────────────────────┐   │
 │  │ Totalt denna vecka      │   │
@@ -241,7 +238,7 @@ Root
 │  │ Övrigt  ██          800 │   │
 │  └─────────────────────────┘   │
 │                                 │
-│  Timme-för-timme                │
+│  Timmar per dag                 │
 │  ┌─────────────────────────┐   │
 │  │  [Bar chart by day]     │   │
 │  └─────────────────────────┘   │
@@ -271,8 +268,8 @@ Root
 │                                 │
 │  Arbetstidsgränser              │
 │  ┌─────────────────────────┐   │
-│  │ Veckogräns (tim)    60  │   │
-│  │ Månadsgräns (tim)  192  │   │
+│  │ Veckogräns (tim)    60  │   │  ← Adjustable
+│  │ Månadsgräns (tim)  192  │   │  ← Adjustable
 │  └─────────────────────────┘   │
 │                                 │
 │  App                            │
@@ -293,9 +290,8 @@ Root
 
 | Component | Description |
 |---|---|
-| `TimerDisplay` | Large monospaced timer (HH:MM:SS) |
 | `StatCard` | Small card showing a metric (hours/earnings) |
-| `ComplianceCard` | Progress bar + status message for legal hours |
+| `ComplianceCard` | Progress bar + status message for hours overview |
 | `SessionCard` | History list item (date, time, duration, earnings, platform) |
 | `PlatformChip` | Selectable platform tag (Uber, Bolt, etc.) |
 | `EarningsInput` | Currency-formatted text field (SEK) |
@@ -308,13 +304,16 @@ Root
 
 ## 7. Tone of Voice
 
-| Situation | Wrong (surveillance) | Right (co-pilot) |
+| Situation | Surveillance (avoid) | Co-pilot (use) |
 |---|---|---|
-| Approaching limit | "Warning: 45h worked" | "Starkt jobbat — 45 av 60h denna vecka" |
-| Limit reached | "You exceeded legal hours" | "Du har nått veckogränsen — vila rekommenderas" |
-| After 6h driving | "Break required by law" | "Du har kört 6 timmar — dags för en paus" |
-| New session saved | "Session recorded" | "Pass sparat ✓" |
-| Good compliance | — | "Du är redo att köra" |
+| All clear | "No violations" | "Klart — kör på" / "All clear — keep going" |
+| Approaching 48h | "Warning: 45h worked" | "48h+ den här veckan — bra jobbat, överväg en paus" |
+| Weekly target reached | "You exceeded the limit" | "Veckans mål nått — vila rekommenderas" / "Weekly goal reached" |
+| 60h reached | "Stop driving — legal limit" | "60h nådd — du har förtjänat en ordentlig vila" |
+| Break suggestion | "Break required by law" | "Du har kört 6 timmar — en 30-minuterspaus håller dig skarp" |
+| Session saved | "Session recorded" | "Passet sparat! Bra jobbat." |
+| Auth tagline | "Track hours to stay legal" | "Din tid, dina intäkter, dina villkor" |
+| About tagline | — | "Byggd för svenska förare som värdesätter sin tid" |
 
 ---
 
@@ -322,14 +321,16 @@ Root
 
 | Key | Swedish | English |
 |---|---|---|
-| `dashboard.title` | Hem | Home |
-| `session.start` | Starta pass | Start driving |
-| `session.stop` | Avsluta pass | Stop driving |
-| `stats.weekly_hours` | Timmar denna vecka | Hours this week |
-| `stats.monthly_hours` | Timmar denna månad | Hours this month |
-| `compliance.good` | Du är redo att köra | You're good to drive |
-| `compliance.rest` | Vila rekommenderas | Rest recommended |
-| `compliance.limit` | Veckogränsen nådd | Weekly limit reached |
-| `history.title` | Historik | History |
-| `settings.title` | Inställningar | Settings |
-| `pro.upgrade` | Uppgradera till PRO | Upgrade to PRO |
+| `auth_tagline` | Din tid, dina intäkter, dina villkor | Your time, your earnings, your way |
+| `compliance_title` | Dina timmar | Your hours |
+| `compliance_good` | Klart — kör på | All clear — keep going |
+| `compliance_rest` | Dags att ladda om | Time to recharge |
+| `compliance_limit` | Veckans mål nått | Weekly goal reached |
+| `compliance_hard_limit_warning` | 60h nådd — du har förtjänat en ordentlig vila | 60h reached — you've earned a proper rest |
+| `about_tagline` | Byggd för svenska förare som värdesätter sin tid | Built for Swedish drivers who value their time |
+| `session_start` | Starta pass | Start driving |
+| `session_stop` | Avsluta pass | Stop driving |
+| `history_title` | Historik | History |
+| `stats_title` | Statistik | Statistics |
+| `settings_title` | Inställningar | Settings |
+| `pro_upgrade` | Uppgradera till PRO | Upgrade to PRO |
