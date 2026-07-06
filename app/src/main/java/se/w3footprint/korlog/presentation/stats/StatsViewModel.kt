@@ -31,7 +31,7 @@ class StatsViewModel @Inject constructor(
     }
 
     private fun loadStats(period: StatsPeriod) {
-        _uiState.update { it.copy(period = period, isLoading = true) }
+        _uiState.update { it.copy(period = period, isLoading = it.isInitialLoad) }
         val (start, end) = rangeFor(period)
         viewModelScope.launch {
             repository.getSessionsByDateRange(start, end).collect { sessions ->
@@ -57,7 +57,8 @@ class StatsViewModel @Inject constructor(
             hourlyRate = hourlyRate,
             dayBars = dayBars,
             platformSlices = platformSlices,
-            isLoading = false
+            isLoading = false,
+            isInitialLoad = false
         )
     }
 

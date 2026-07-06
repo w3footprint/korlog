@@ -15,5 +15,6 @@ data class StatsUiState(
     val hourlyRate: Double = 0.0,
     val dayBars: List<DayBar> = emptyList(),
     val platformSlices: List<PlatformSlice> = emptyList(),
-    val isLoading: Boolean = true
+    val isLoading: Boolean = true,
+    val isInitialLoad: Boolean = true
 )
