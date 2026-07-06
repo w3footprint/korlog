@@ -10,4 +10,5 @@ interface SessionRepository {
     suspend fun updateSession(session: DrivingSession)
     suspend fun deleteSession(session: DrivingSession)
     suspend fun getSessionById(id: Long): DrivingSession?
+    suspend fun syncFromCloud()
 }

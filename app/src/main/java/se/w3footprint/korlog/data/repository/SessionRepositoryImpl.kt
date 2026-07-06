@@ -49,4 +49,9 @@ class SessionRepositoryImpl @Inject constructor(
 
     override suspend fun getSessionById(id: Long): DrivingSession? =
         sessionDao.getSessionById(id)?.toDomain()
+
+    override suspend fun syncFromCloud() {
+        val sessions = firestoreRepository.fetchAllSessions()
+        sessions.forEach { sessionDao.insertSession(it) }
+    }
 }

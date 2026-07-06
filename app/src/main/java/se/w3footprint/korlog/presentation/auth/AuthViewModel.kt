@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import se.w3footprint.korlog.data.auth.AuthRepository
 import se.w3footprint.korlog.data.auth.AuthResult
+import se.w3footprint.korlog.domain.repository.SessionRepository
 import javax.inject.Inject
 
 data class AuthUiState(
@@ -30,7 +31,8 @@ data class AuthUiState(
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val sessionRepository: SessionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
@@ -44,11 +46,12 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             val result = authRepository.signIn(_uiState.value.email, _uiState.value.password)
-            _uiState.update {
-                when (result) {
-                    is AuthResult.Success -> it.copy(isLoading = false, isSuccess = true)
-                    is AuthResult.Error -> it.copy(isLoading = false, error = result.message)
+            when (result) {
+                is AuthResult.Success -> {
+                    sessionRepository.syncFromCloud()
+                    _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                 }
+                is AuthResult.Error -> _uiState.update { it.copy(isLoading = false, error = result.message) }
             }
         }
     }
@@ -57,11 +60,12 @@ class AuthViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             val result = authRepository.register(_uiState.value.email, _uiState.value.password)
-            _uiState.update {
-                when (result) {
-                    is AuthResult.Success -> it.copy(isLoading = false, isSuccess = true)
-                    is AuthResult.Error -> it.copy(isLoading = false, error = result.message)
+            when (result) {
+                is AuthResult.Success -> {
+                    sessionRepository.syncFromCloud()
+                    _uiState.update { it.copy(isLoading = false, isSuccess = true) }
                 }
+                is AuthResult.Error -> _uiState.update { it.copy(isLoading = false, error = result.message) }
             }
         }
     }

@@ -35,4 +35,27 @@ class FirestoreRepository @Inject constructor(
         val uid = auth.currentUser?.uid ?: return
         sessionsCollection(uid).document(sessionId.toString()).delete().await()
     }
+
+    suspend fun fetchAllSessions(): List<se.w3footprint.korlog.data.local.entity.SessionEntity> {
+        val uid = auth.currentUser?.uid ?: return emptyList()
+        val snapshot = sessionsCollection(uid).get().await()
+        return snapshot.documents.mapNotNull { doc ->
+            try {
+                se.w3footprint.korlog.data.local.entity.SessionEntity(
+                    id = doc.id.toLong(),
+                    startTime = doc.getLong("startTime") ?: 0L,
+                    endTime = doc.getLong("endTime") ?: 0L,
+                    durationMillis = doc.getLong("durationMillis") ?: 0L,
+                    breakDurationMillis = doc.getLong("breakDurationMillis") ?: 0L,
+                    earningsSek = doc.getDouble("earningsSek") ?: 0.0,
+                    distanceKm = doc.getDouble("distanceKm") ?: 0.0,
+                    platform = doc.getString("platform") ?: "OTHER",
+                    notes = doc.getString("notes") ?: "",
+                    date = doc.getLong("date") ?: 0L
+                )
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
 }
