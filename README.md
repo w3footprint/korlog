@@ -4,6 +4,16 @@
 
 A professional Android app for Swedish taxi and rideshare drivers to track working hours, log earnings, and stay on top of their week — on their own terms.
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/login.png" width="160" alt="Login" />
+  <img src="docs/screenshots/home.png" width="160" alt="Home" />
+  <img src="docs/screenshots/timer.png" width="160" alt="Active session" />
+  <img src="docs/screenshots/statistics.png" width="160" alt="Statistics" />
+  <img src="docs/screenshots/settings.png" width="160" alt="Settings" />
+</p>
+
 ## What it does
 
 Taxi drivers in Sweden juggle multiple platforms — Uber, Bolt, Cabonline and others — often without a clear picture of their total hours or income. Keeping that picture clear shouldn't require paperwork, spreadsheets, or guesswork.

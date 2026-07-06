@@ -35,7 +35,7 @@
     <string name="compliance_hours_format">%.1f / %.0f h</string>
     <string name="compliance_weekly_limit">Weekly hours</string>
     <string name="compliance_average_warning">48h+ this week — great work, consider a rest</string>
-    <string name="compliance_hard_limit_warning">60h reached — you\'ve earned a proper rest</string>
+    <string name="compliance_hard_limit_warning">%dh reached — you\'ve earned a proper rest</string>
 
     <!-- Session -->
     <string name="session_platform">Platform</string>
@@ -95,6 +95,9 @@
     <string name="settings_notifications">Notifications</string>
     <string name="settings_dark_mode">Dark mode</string>
     <string name="settings_sign_out">Sign out</string>
+    <string name="settings_sign_out_confirm_title">Sign out?</string>
+    <string name="settings_sign_out_confirm_body">You\'ll need to sign in again to access your data.</string>
+    <string name="action_cancel">Cancel</string>
     <string name="settings_about">About KörLog</string>
     <string name="settings_privacy">Privacy policy</string>
 

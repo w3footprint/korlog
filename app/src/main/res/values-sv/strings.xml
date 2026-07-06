@@ -35,7 +35,7 @@
     <string name="compliance_hours_format">%.1f / %.0f h</string>
     <string name="compliance_weekly_limit">Veckotimmar</string>
     <string name="compliance_average_warning">48h+ den här veckan — bra jobbat, överväg en paus</string>
-    <string name="compliance_hard_limit_warning">60h nådd — du har förtjänat en ordentlig vila</string>
+    <string name="compliance_hard_limit_warning">%dh nådd — du har förtjänat en ordentlig vila</string>
 
     <!-- Session -->
     <string name="session_platform">Plattform</string>
@@ -95,6 +95,9 @@
     <string name="settings_notifications">Notifikationer</string>
     <string name="settings_dark_mode">Mörkt läge</string>
     <string name="settings_sign_out">Logga ut</string>
+    <string name="settings_sign_out_confirm_title">Logga ut?</string>
+    <string name="settings_sign_out_confirm_body">Du behöver logga in igen för att komma åt din data.</string>
+    <string name="action_cancel">Avbryt</string>
     <string name="settings_about">Om KörLog</string>
     <string name="settings_privacy">Integritetspolicy</string>
 

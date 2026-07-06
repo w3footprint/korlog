@@ -66,6 +66,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     var editingWeeklyLimit by remember { mutableStateOf(false) }
     var editingMonthlyLimit by remember { mutableStateOf(false) }
+    var showSignOutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.signedOut) {
         if (uiState.signedOut) onSignOut()
@@ -77,6 +78,29 @@ fun SettingsScreen(
             current = uiState.weeklyLimitHours,
             onConfirm = { viewModel.setWeeklyLimit(it); editingWeeklyLimit = false },
             onDismiss = { editingWeeklyLimit = false }
+        )
+    }
+
+    if (showSignOutDialog) {
+        AlertDialog(
+            onDismissRequest = { showSignOutDialog = false },
+            title = { Text(stringResource(R.string.settings_sign_out_confirm_title)) },
+            text = { Text(stringResource(R.string.settings_sign_out_confirm_body)) },
+            confirmButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = { showSignOutDialog = false; viewModel.signOut() }
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_sign_out),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = { showSignOutDialog = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            }
         )
     }
 
@@ -148,7 +172,7 @@ fun SettingsScreen(
             SettingsNavRow(
                 icon = Icons.Outlined.Info,
                 label = stringResource(R.string.settings_sign_out),
-                onClick = { viewModel.signOut() },
+                onClick = { showSignOutDialog = true },
                 isLoading = uiState.isSigningOut
             )
         }

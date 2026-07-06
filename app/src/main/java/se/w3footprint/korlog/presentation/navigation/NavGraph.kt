@@ -12,6 +12,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -52,13 +53,19 @@ private val screensWithoutBottomNav = setOf(
 )
 
 @Composable
-fun KorLogNavGraph(isLoggedIn: Boolean) {
+fun KorLogNavGraph(isLoggedIn: Boolean, navigateTo: String? = null) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val showBottomNav = currentDestination?.route !in screensWithoutBottomNav
 
     val startDestination = if (isLoggedIn) Screen.Dashboard.route else Screen.Login.route
+
+    LaunchedEffect(navigateTo) {
+        if (navigateTo != null && isLoggedIn) {
+            navController.navigate(navigateTo)
+        }
+    }
 
     Scaffold(
         bottomBar = {

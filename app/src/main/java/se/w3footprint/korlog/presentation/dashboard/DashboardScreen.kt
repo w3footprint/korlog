@@ -267,7 +267,7 @@ private fun ComplianceCard(compliance: ComplianceStatus) {
             }
             if (compliance.isWeeklyHardLimitExceeded) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(text = stringResource(R.string.compliance_hard_limit_warning),
+                Text(text = stringResource(R.string.compliance_hard_limit_warning, compliance.weeklyHardLimitHours.roundToInt()),
                     style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
             } else if (compliance.isWeeklyAverageLimitExceeded) {
                 Spacer(modifier = Modifier.height(8.dp))

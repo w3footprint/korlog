@@ -20,10 +20,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val navigateTo = intent.getStringExtra("navigate_to")
         setContent {
             KorLogTheme {
                 Surface {
-                    KorLogNavGraph(isLoggedIn = auth.currentUser != null)
+                    KorLogNavGraph(
+                        isLoggedIn = auth.currentUser != null,
+                        navigateTo = navigateTo
+                    )
                 }
             }
         }

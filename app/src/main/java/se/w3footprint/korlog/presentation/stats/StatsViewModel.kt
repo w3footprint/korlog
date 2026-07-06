@@ -75,7 +75,7 @@ class StatsViewModel @Inject constructor(
                     }
                     DayBar(
                         label = label,
-                        hours = (daySessions.sumOf { it.durationMillis } / 3_600_000.0).toFloat(),
+                        hours = (daySessions.sumOf { it.drivingDurationMillis } / 3_600_000.0).toFloat(),
                         earnings = daySessions.sumOf { it.earningsSek }
                     )
                 }
@@ -88,7 +88,7 @@ class StatsViewModel @Inject constructor(
                     }
                     DayBar(
                         label = "W$week",
-                        hours = (weekSessions.sumOf { it.durationMillis } / 3_600_000.0).toFloat(),
+                        hours = (weekSessions.sumOf { it.drivingDurationMillis } / 3_600_000.0).toFloat(),
                         earnings = weekSessions.sumOf { it.earningsSek }
                     )
                 }

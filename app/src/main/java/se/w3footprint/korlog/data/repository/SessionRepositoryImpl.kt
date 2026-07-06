@@ -68,7 +68,7 @@ class SessionRepositoryImpl @Inject constructor(
             val local = sessionDao.getAllSessionsOnce(currentUid)
             local.forEach { firestoreRepository.upsertSession(it.toDomain()) }
             val cloud = firestoreRepository.fetchAllSessions()
-            cloud.forEach { sessionDao.insertSession(it) }
+            cloud.forEach { sessionDao.insertSessionFromCloud(it) }
         } catch (_: Exception) {}
         startRealtimeSync()
     }
@@ -82,7 +82,7 @@ class SessionRepositoryImpl @Inject constructor(
         realtimeSyncJob?.cancel()
         realtimeSyncJob = scope.launch {
             firestoreRepository.observeSessions().collect { sessions ->
-                sessions.forEach { sessionDao.insertSession(it) }
+                sessions.forEach { sessionDao.insertSessionFromCloud(it) }
                 val cloudIds = sessions.map { it.id }.toSet()
                 val localIds = sessionDao.getAllSessionsOnce(uid).map { it.id }.toSet()
                 val deletedIds = localIds - cloudIds
