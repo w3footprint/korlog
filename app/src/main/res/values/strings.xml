@@ -125,6 +125,13 @@
     <string name="auth_tagline">Track your driving time and earnings</string>
     <string name="auth_register_subtitle">Create a free account to get started</string>
     <string name="auth_passwords_no_match">Passwords do not match</string>
+    <string name="auth_forgot_password">Forgot password</string>
+    <string name="auth_forgot_password_link">Forgot password?</string>
+    <string name="auth_forgot_password_subtitle">Enter your email and we\'ll send you a reset link.</string>
+    <string name="auth_send_reset">Send reset link</string>
+    <string name="auth_reset_sent_title">Check your inbox</string>
+    <string name="auth_reset_sent_body">A reset link has been sent to %s</string>
+    <string name="auth_back_to_login">Back to login</string>
 
     <!-- Notifications -->
     <string name="notification_channel_name">Break reminders</string>

@@ -18,7 +18,8 @@ data class AuthUiState(
     val confirmPassword: String = "",
     val isLoading: Boolean = false,
     val error: String? = null,
-    val isSuccess: Boolean = false
+    val isSuccess: Boolean = false,
+    val resetEmailSent: Boolean = false
 ) {
     val emailValid: Boolean get() = email.contains("@") && email.contains(".")
     val passwordValid: Boolean get() = password.length >= 6
@@ -59,6 +60,19 @@ class AuthViewModel @Inject constructor(
             _uiState.update {
                 when (result) {
                     is AuthResult.Success -> it.copy(isLoading = false, isSuccess = true)
+                    is AuthResult.Error -> it.copy(isLoading = false, error = result.message)
+                }
+            }
+        }
+    }
+
+    fun sendPasswordReset() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            val result = authRepository.sendPasswordReset(_uiState.value.email)
+            _uiState.update {
+                when (result) {
+                    is AuthResult.Success -> it.copy(isLoading = false, resetEmailSent = true)
                     is AuthResult.Error -> it.copy(isLoading = false, error = result.message)
                 }
             }

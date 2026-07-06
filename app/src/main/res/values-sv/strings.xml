@@ -125,6 +125,13 @@
     <string name="auth_tagline">Spåra din körtid och dina intäkter</string>
     <string name="auth_register_subtitle">Skapa ett gratis konto för att komma igång</string>
     <string name="auth_passwords_no_match">Lösenorden matchar inte</string>
+    <string name="auth_forgot_password">Glömt lösenord</string>
+    <string name="auth_forgot_password_link">Glömt lösenordet?</string>
+    <string name="auth_forgot_password_subtitle">Ange din e-post så skickar vi en återställningslänk.</string>
+    <string name="auth_send_reset">Skicka återställningslänk</string>
+    <string name="auth_reset_sent_title">Kolla din inkorg</string>
+    <string name="auth_reset_sent_body">En återställningslänk har skickats till %s</string>
+    <string name="auth_back_to_login">Tillbaka till inloggning</string>
 
     <!-- Notifications -->
     <string name="notification_channel_name">Pauspåminnelser</string>

@@ -36,6 +36,15 @@ class AuthRepository @Inject constructor(
         }
     }
 
+    suspend fun sendPasswordReset(email: String): AuthResult {
+        return try {
+            auth.sendPasswordResetEmail(email).await()
+            AuthResult.Success
+        } catch (e: Exception) {
+            AuthResult.Error(e.localizedMessage ?: "Failed to send reset email")
+        }
+    }
+
     fun signOut() {
         auth.signOut()
     }

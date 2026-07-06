@@ -25,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import se.w3footprint.korlog.R
 import com.google.firebase.auth.FirebaseAuth
+import se.w3footprint.korlog.presentation.auth.ForgotPasswordScreen
 import se.w3footprint.korlog.presentation.auth.LoginScreen
 import se.w3footprint.korlog.presentation.auth.RegisterScreen
 import se.w3footprint.korlog.presentation.dashboard.DashboardScreen
@@ -47,6 +48,7 @@ private val bottomNavScreens = listOf(
 private val screensWithoutBottomNav = setOf(
     Screen.Login.route,
     Screen.Register.route,
+    Screen.ForgotPassword.route,
     Screen.ActiveSession.route
 )
 
@@ -120,7 +122,8 @@ fun KorLogNavGraph(isLoggedIn: Boolean) {
                             popUpTo(Screen.Login.route) { inclusive = true }
                         }
                     },
-                    onRegisterClick = { navController.navigate(Screen.Register.route) }
+                    onRegisterClick = { navController.navigate(Screen.Register.route) },
+                    onForgotPasswordClick = { navController.navigate(Screen.ForgotPassword.route) }
                 )
             }
             composable(Screen.Register.route) {
@@ -132,6 +135,9 @@ fun KorLogNavGraph(isLoggedIn: Boolean) {
                     },
                     onLoginClick = { navController.popBackStack() }
                 )
+            }
+            composable(Screen.ForgotPassword.route) {
+                ForgotPasswordScreen(onBack = { navController.popBackStack() })
             }
 
             // Main tabs
