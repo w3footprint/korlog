@@ -31,6 +31,6 @@ interface SessionDao {
     @Query("SELECT * FROM sessions WHERE userId = :userId")
     suspend fun getAllSessionsOnce(userId: String): List<SessionEntity>
 
-    @Query("DELETE FROM sessions WHERE id = :id")
-    suspend fun deleteSessionById(id: Long)
+    @Query("DELETE FROM sessions WHERE id = :id AND userId = :userId")
+    suspend fun deleteSessionById(id: Long, userId: String)
 }

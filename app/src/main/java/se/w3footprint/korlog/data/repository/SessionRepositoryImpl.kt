@@ -64,7 +64,6 @@ class SessionRepositoryImpl @Inject constructor(
     override suspend fun syncFromCloud() {
         val currentUid = uid
         if (currentUid.isEmpty()) return
-        sessionDao.claimOrphanedSessions(currentUid)
         try {
             val local = sessionDao.getAllSessionsOnce(currentUid)
             local.forEach { firestoreRepository.upsertSession(it.toDomain()) }
@@ -87,7 +86,7 @@ class SessionRepositoryImpl @Inject constructor(
                 val cloudIds = sessions.map { it.id }.toSet()
                 val localIds = sessionDao.getAllSessionsOnce(uid).map { it.id }.toSet()
                 val deletedIds = localIds - cloudIds
-                deletedIds.forEach { sessionDao.deleteSessionById(it) }
+                deletedIds.forEach { sessionDao.deleteSessionById(it, uid) }
             }
         }
     }
