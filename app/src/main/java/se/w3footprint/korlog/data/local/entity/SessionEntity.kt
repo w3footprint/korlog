@@ -9,6 +9,7 @@ import se.w3footprint.korlog.domain.model.Platform
 data class SessionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val syncId: String = "",
     val userId: String = "",
     val startTime: Long,
     val endTime: Long,
