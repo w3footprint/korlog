@@ -1,14 +1,16 @@
 package se.w3footprint.korlog.data.local.entity
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import se.w3footprint.korlog.domain.model.DrivingSession
 import se.w3footprint.korlog.domain.model.Platform
 
-@Entity(tableName = "sessions")
+@Entity(tableName = "sessions", indices = [Index(value = ["syncId"], unique = true)])
 data class SessionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
+    val syncId: String = "",
     val userId: String = "",
     val startTime: Long,
     val endTime: Long,
@@ -23,6 +25,7 @@ data class SessionEntity(
 
 fun SessionEntity.toDomain() = DrivingSession(
     id = id,
+    syncId = syncId,
     startTime = startTime,
     endTime = endTime,
     durationMillis = durationMillis,
@@ -36,6 +39,7 @@ fun SessionEntity.toDomain() = DrivingSession(
 
 fun DrivingSession.toEntity(userId: String = "") = SessionEntity(
     id = id,
+    syncId = syncId,
     userId = userId,
     startTime = startTime,
     endTime = endTime,

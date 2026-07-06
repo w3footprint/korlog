@@ -33,4 +33,10 @@ interface SessionDao {
 
     @Query("DELETE FROM sessions WHERE id = :id")
     suspend fun deleteSessionById(id: Long)
+
+    @Query("DELETE FROM sessions WHERE syncId = :syncId")
+    suspend fun deleteSessionBySyncId(syncId: String)
+
+    @Query("SELECT * FROM sessions WHERE syncId = :syncId LIMIT 1")
+    suspend fun findBySyncId(syncId: String): SessionEntity?
 }
