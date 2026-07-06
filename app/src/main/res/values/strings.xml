@@ -54,6 +54,8 @@
     <string name="session_break_duration">Break duration</string>
     <string name="session_stop_confirm_title">End session?</string>
     <string name="session_stop_confirm_body">This will save your session and return to the dashboard.</string>
+    <string name="session_stop_sheet_title">End session</string>
+    <string name="session_save">Save session</string>
     <string name="platform_uber">Uber</string>
     <string name="platform_bolt">Bolt</string>
     <string name="platform_cabonline">Cabonline</string>

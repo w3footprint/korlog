@@ -54,6 +54,8 @@
     <string name="session_break_duration">Paustid</string>
     <string name="session_stop_confirm_title">Avsluta passet?</string>
     <string name="session_stop_confirm_body">Passet sparas och du återgår till översikten.</string>
+    <string name="session_stop_sheet_title">Avsluta passet</string>
+    <string name="session_save">Spara passet</string>
     <string name="platform_uber">Uber</string>
     <string name="platform_bolt">Bolt</string>
     <string name="platform_cabonline">Cabonline</string>

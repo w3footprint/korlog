@@ -1,5 +1,9 @@
 package se.w3footprint.korlog.presentation.session
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -10,10 +14,10 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,23 +29,19 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.outlined.Coffee
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import android.Manifest
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -62,18 +62,18 @@ import se.w3footprint.korlog.R
 import se.w3footprint.korlog.domain.model.Platform
 import se.w3footprint.korlog.presentation.common.theme.Green500
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActiveSessionScreen(
     onSessionSaved: (Long) -> Unit,
     viewModel: ActiveSessionViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val sessionState by viewModel.sessionState.collectAsState()
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { /* permission result handled silently — notifications are non-critical */ }
-
-    val sessionState by viewModel.sessionState.collectAsState()
+    ) {}
 
     LaunchedEffect(sessionState.isRestored) {
         if (!sessionState.isRestored) return@LaunchedEffect
@@ -89,54 +89,57 @@ fun ActiveSessionScreen(
         uiState.savedSessionId?.let { onSessionSaved(it) }
     }
 
+    // Stop sheet
     if (uiState.showStopConfirm) {
-        StopConfirmDialog(
-            onConfirm = { viewModel.confirmStop() },
-            onDismiss = { viewModel.onStopConfirmDismissed() }
-        )
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ModalBottomSheet(
+            onDismissRequest = { viewModel.onStopConfirmDismissed() },
+            sheetState = sheetState
+        ) {
+            StopSessionSheet(
+                uiState = uiState,
+                onEarningsChanged = viewModel::onEarningsChanged,
+                onDistanceChanged = viewModel::onDistanceChanged,
+                onPlatformSelected = viewModel::onPlatformSelected,
+                onNotesChanged = viewModel::onNotesChanged,
+                onSave = { viewModel.confirmStop() },
+                onDismiss = { viewModel.onStopConfirmDismissed() }
+            )
+        }
     }
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            .imePadding()
-            .padding(horizontal = 20.dp, vertical = 24.dp),
+            .padding(horizontal = 24.dp, vertical = 48.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Status label
         Text(
-            text = if (uiState.isOnBreak)
-                stringResource(R.string.session_on_break)
-            else
-                stringResource(R.string.session_driving_time),
+            text = if (uiState.isOnBreak) stringResource(R.string.session_on_break)
+                   else stringResource(R.string.session_driving_time),
             style = MaterialTheme.typography.titleMedium,
-            color = if (uiState.isOnBreak) MaterialTheme.colorScheme.onSurfaceVariant
-            else MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Main driving timer
+        // Main timer
         Text(
             text = uiState.formattedDrivingTime,
-            fontSize = 64.sp,
+            fontSize = 72.sp,
             fontWeight = FontWeight.Bold,
             fontFamily = FontFamily.Monospace,
-            color = if (uiState.isOnBreak)
-                MaterialTheme.colorScheme.onSurfaceVariant
-            else
-                MaterialTheme.colorScheme.onBackground,
+            color = if (uiState.isOnBreak) MaterialTheme.colorScheme.onSurfaceVariant
+                    else MaterialTheme.colorScheme.onBackground,
             letterSpacing = 2.sp
         )
 
-        // Break time indicator
+        // Break time badge
         if (uiState.totalBreakMillis > 0 || uiState.isOnBreak) {
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
+            Spacer(modifier = Modifier.height(10.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Outlined.Coffee,
                     contentDescription = null,
@@ -151,19 +154,8 @@ fun ActiveSessionScreen(
             }
         }
 
-        // Live hourly rate
-        if (uiState.hourlyRate > 0 && !uiState.isOnBreak) {
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "≈ %,.0f kr/h".format(uiState.hourlyRate),
-                style = MaterialTheme.typography.bodyLarge,
-                color = Green500,
-                fontWeight = FontWeight.Medium
-            )
-        }
-
         if (uiState.isOnBreak) {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = stringResource(R.string.session_break_hint),
                 style = MaterialTheme.typography.bodySmall,
@@ -172,9 +164,9 @@ fun ActiveSessionScreen(
             )
         }
 
-        Spacer(modifier = Modifier.height(28.dp))
+        Spacer(modifier = Modifier.height(48.dp))
 
-        // Break / Resume button
+        // Break / Resume
         if (uiState.isOnBreak) {
             Button(
                 onClick = { viewModel.resumeFromBreak() },
@@ -205,79 +197,9 @@ fun ActiveSessionScreen(
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        // Earnings & distance
-        InputCard {
-            OutlinedTextField(
-                value = uiState.earningsInput,
-                onValueChange = viewModel::onEarningsChanged,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.session_earnings)) },
-                suffix = { Text("kr") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                )
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            OutlinedTextField(
-                value = uiState.distanceInput,
-                onValueChange = viewModel::onDistanceChanged,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.session_distance)) },
-                suffix = { Text("km") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                )
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Platform picker
-        InputCard {
-            Text(
-                text = stringResource(R.string.session_platform),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 10.dp)
-            )
-            PlatformPicker(
-                selected = uiState.selectedPlatform,
-                onSelect = viewModel::onPlatformSelected
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Notes
-        InputCard {
-            OutlinedTextField(
-                value = uiState.notes,
-                onValueChange = viewModel::onNotesChanged,
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text(stringResource(R.string.session_notes)) },
-                minLines = 2,
-                maxLines = 4,
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                )
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Stop button
+        // Stop
         Button(
             onClick = { viewModel.onStopRequested() },
             modifier = Modifier.fillMaxWidth().height(56.dp),
@@ -301,74 +223,148 @@ fun ActiveSessionScreen(
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(32.dp))
-    }
-}
-
-@Composable
-private fun InputCard(content: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) { content() }
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun PlatformPicker(selected: Platform, onSelect: (Platform) -> Unit) {
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+private fun StopSessionSheet(
+    uiState: ActiveSessionUiState,
+    onEarningsChanged: (String) -> Unit,
+    onDistanceChanged: (String) -> Unit,
+    onPlatformSelected: (Platform) -> Unit,
+    onNotesChanged: (String) -> Unit,
+    onSave: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .imePadding()
+            .navigationBarsPadding()
+            .padding(horizontal = 20.dp)
+            .padding(bottom = 24.dp)
     ) {
-        Platform.entries.forEach { platform ->
-            val isSelected = platform == selected
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(
-                        if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
+        Text(
+            text = stringResource(R.string.session_stop_sheet_title),
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Text(
+            text = uiState.formattedDrivingTime,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Earnings
+        OutlinedTextField(
+            value = uiState.earningsInput,
+            onValueChange = onEarningsChanged,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.session_earnings)) },
+            suffix = { Text("kr") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            )
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Distance
+        OutlinedTextField(
+            value = uiState.distanceInput,
+            onValueChange = onDistanceChanged,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.session_distance)) },
+            suffix = { Text("km") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            )
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Platform
+        Text(
+            text = stringResource(R.string.session_platform),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Platform.entries.forEach { platform ->
+                val isSelected = platform == uiState.selectedPlatform
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
+                        .border(
+                            width = 1.dp,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.outline,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .clickable { onPlatformSelected(platform) }
+                        .padding(horizontal = 14.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = platform.name.lowercase().replaceFirstChar { it.uppercase() }
+                            .replace("_", " "),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                                else MaterialTheme.colorScheme.onSurface,
+                        fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
                     )
-                    .border(
-                        width = 1.dp,
-                        color = if (isSelected) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.outline,
-                        shape = RoundedCornerShape(20.dp)
-                    )
-                    .clickable { onSelect(platform) }
-                    .padding(horizontal = 14.dp, vertical = 8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = platform.name.lowercase().replaceFirstChar { it.uppercase() }
-                        .replace("_", " "),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                    else MaterialTheme.colorScheme.onSurface,
-                    fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal
-                )
+                }
             }
         }
-    }
-}
 
-@Composable
-private fun StopConfirmDialog(onConfirm: () -> Unit, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.session_stop_confirm_title)) },
-        text = { Text(stringResource(R.string.session_stop_confirm_body)) },
-        confirmButton = {
-            Button(
-                onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-            ) { Text(stringResource(R.string.session_stop)) }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Notes
+        OutlinedTextField(
+            value = uiState.notes,
+            onValueChange = onNotesChanged,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text(stringResource(R.string.session_notes)) },
+            minLines = 2,
+            maxLines = 4,
+            shape = RoundedCornerShape(12.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            )
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Button(
+            onClick = onSave,
+            modifier = Modifier.fillMaxWidth().height(56.dp),
+            shape = RoundedCornerShape(14.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.session_save),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
         }
-    )
+    }
 }
