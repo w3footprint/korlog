@@ -183,7 +183,7 @@ class SessionRepositoryImplTest {
 
         repository.syncFromCloud()
 
-        coVerify { sessionDao.insertSession(cloudSession) }
+        coVerify { sessionDao.insertSessionFromCloud(cloudSession) }
     }
 
     @Test
